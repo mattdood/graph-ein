@@ -1,7 +1,7 @@
 import json
 import pathlib
 import sqlite3
-from typing import Dict, List
+from typing import Dict
 
 
 class Database:
@@ -9,8 +9,8 @@ class Database:
 
     def __init__(self, db_path: str):
         """Establish connection to new or existing db."""
-        self.connection = sqlite3.connect(db_path)
-        self.cursor = self.connection.cursor()
+        self._connection = sqlite3.connect(db_path)
+        self._cursor = self._connection.cursor()
 
     def _read_sql_file(self, file_name: str, schema_name: str=None):
         """Read `.sql` utility files.
@@ -47,7 +47,7 @@ class Database:
             None
         """
         sql_text = self._read_sql_file("create-schema.sql", schema_name)
-        self.cursor.execute(sql_text)
+        self._cursor.execute(sql_text)
 
     def add_node(self, schema_name: str, json_data: Dict):
         """Adds a 'node' to SQLite db.
@@ -60,7 +60,7 @@ class Database:
             None
         """
         sql_text = self._read_sql_file("insert-node.sql", schema_name)
-        self.cursor.execute(sql_text, (json_data["id"], json_data))
+        self._cursor.execute(sql_text, (json_data["id"], json_data))
 
     def add_edge(self, schema_name: str, source_id: str, target_id: str, properties: Dict=None):
         """Adds a 'edge' to SQLite db.
@@ -75,7 +75,7 @@ class Database:
             None
         """
         sql_text = self._read_sql_file("insert-edge.sql", schema_name)
-        self.cursor.execute(sql_text, (source_id, target_id, properties))
+        self._cursor.execute(sql_text, (source_id, target_id, properties))
 
     def delete_schema(self, schema_name: str):
         """Removes a 'schema' from the SQLite db.
@@ -87,7 +87,7 @@ class Database:
             None
         """
         sql_text = self._read_sql_file("delete-schema.sql", schema_name)
-        self.cursor.execute(sql_text)
+        self._cursor.execute(sql_text)
 
     def delete_node(self, schema_name: str, node_id: str):
         """Removes a 'schema' from the SQLite db.
@@ -99,7 +99,7 @@ class Database:
             None
         """
         sql_text = self._read_sql_file("delete-node.sql", schema_name)
-        self.cursor.execute(sql_text, node_id)
+        self._cursor.execute(sql_text, node_id)
 
     def delete_edge(self, schema_name: str, source_or_target_id: str):
         """Removes all 'edge' rows from the SQLite db.
@@ -112,7 +112,7 @@ class Database:
             None
         """
         sql_text = self._read_sql_file("delete-edge.sql", schema_name)
-        self.cursor.execute(sql_text, source_or_target_id)
+        self._cursor.execute(sql_text, source_or_target_id)
 
     def get_schemas(self, schema_name: str=None):
         """Retrieves all schemas matching schema name.
@@ -127,7 +127,7 @@ class Database:
         sql_text = self._read_sql_file("select-schemas.sql")
         if schema_name:
             schema_name = schema_name + "%"
-        return self.cursor.execute(sql_text, (schema_name,)).fetchall()
+        return self._cursor.execute(sql_text, (schema_name,)).fetchall()
 
     def get_nodes(self, schema_name: str, params: Dict):
         """Retrieves all nodes matching schema name and params.
@@ -149,7 +149,7 @@ class Database:
             if params["body"]:
                 sql_params += "body LIKE " + json.dumps(params["body"])
 
-        return self.cursor.execute(sql_text, (sql_params, sql_params,)).fetchall()
+        return self._cursor.execute(sql_text, (sql_params, sql_params,)).fetchall()
 
     def get_edges(self, schema_name: str, params: Dict):
         """Retrieves all edges matching schema name and params.
@@ -171,5 +171,17 @@ class Database:
             if params["target_id"]:
                 sql_params += "target_id = " + params["target_id"]
 
-        return self.cursor.execute(sql_text, (schema_name, sql_params,)).fetchall()
+        return self._cursor.execute(sql_text, (schema_name, sql_params,)).fetchall()
+
+    def execute_sql(self, sql_text: str):
+        """Executes arbitrary SQL.
+
+        Only use this is you know what you're
+        doing.
+
+        Params:
+            sql_text (str): Query to execute.
+        """
+        return self._cursor.execute(sql_text).fetchall()
+
 
