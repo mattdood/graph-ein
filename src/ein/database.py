@@ -12,7 +12,7 @@ class Database:
         self.connection = sqlite3.connect(db_path)
         self.cursor = self.connection.cursor()
 
-    def _read_sql_file(self, file_name: str, schema_name: str):
+    def _read_sql_file(self, file_name: str, schema_name: str=None):
         """Read `.sql` utility files.
 
         Reads project SQL utility files and inserts the
@@ -28,7 +28,9 @@ class Database:
         """
         with open(pathlib.Path.cwd() / ".." / "sql" / file_name) as file:
             sql_text = file.read()
-        sql_text.replace("{{schema_name}}", schema_name)
+
+        if schema_name:
+            sql_text.replace("{{schema_name}}", schema_name)
         return sql_text
 
     def add_schema(self, schema_name: str) -> None:
@@ -44,18 +46,15 @@ class Database:
         Returns:
             None
         """
-        sql_text = self._read_sql_file("insert-schema.sql", schema_name)
+        sql_text = self._read_sql_file("create-schema.sql", schema_name)
         self.cursor.execute(sql_text)
 
     def add_node(self, schema_name: str, json_data: Dict):
-        """Adds a '' to SQLite db.
-
-        Schemas aren't directly supported so we
-        use a naming scheme that allows us to use
-        schemas.
+        """Adds a 'node' to SQLite db.
 
         Params:
             schema_name (str): Name to prepend to tables.
+            json_data (Dict): The data representing a node.
 
         Returns:
             None
