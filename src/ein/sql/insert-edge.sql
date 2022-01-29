@@ -1,4 +1,12 @@
-INSERT INTO {{schema_name}}_edges VALUES (
-    json(?)
+INSERT INTO {{schema_name}}_edges
+(
+    source,
+    target,
+    properties
+)
+VALUES (
+    ?,
+    ?,
+    ?
 )
 
