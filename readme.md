@@ -1,3 +1,4 @@
+![Gif of Ein from Cowboy Bebop in space](/assets/ein-space.gif)
 # Graph-Ein
 A graph database implemented in [SQLite](https://sqlite.org/index.html).
 
