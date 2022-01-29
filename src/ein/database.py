@@ -62,8 +62,20 @@ class Database:
         sql_text = self._read_sql_file("insert-node.sql", schema_name)
         self.cursor.execute(sql_text, (json_data["id"], json_data))
 
-    def add_edge(self, schema_name: str, source: str, target: str):
-        pass
+    def add_edge(self, schema_name: str, source_id: str, target_id: str, properties: Dict=None):
+        """Adds a 'edge' to SQLite db.
+
+        Params:
+            schema_name (str): Name to prepend to tables.
+            source_id (str): Origin ID of the edge.
+            target_id (str): Direction of the link in the edge.
+            properties (Dict): Properties of the link (e.g., weights)
+
+        Returns:
+            None
+        """
+        sql_text = self._read_sql_file("insert-edge.sql", schema_name)
+        self.cursor.execute(sql_text, (source_id, target_id, properties))
 
     def delete_schema(self, schema_name: str):
         pass
