@@ -1,4 +1,6 @@
-![Gif of Ein from Cowboy Bebop in space](/assets/ein-space.gif)
+<div align="center">
+    <img src="/assets/eign-space.gif" alt="Gif of Ein from Cowboy Bebop in space"/>
+</div>
 # Graph-Ein
 A graph database implemented in [SQLite](https://sqlite.org/index.html).
 
@@ -8,3 +10,4 @@ A graph database implemented in [SQLite](https://sqlite.org/index.html).
 1. Index generator
 1. Reasonable object return structure
 
+**Note:** I do not make any claims to the [Cowboy Bebop](https://en.wikipedia.org/wiki/Cowboy_Bebop) assets, names, or trademarks.
