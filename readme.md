@@ -1,6 +1,7 @@
 <div align="center">
-    <img src="/assets/eign-space.gif" alt="Gif of Ein from Cowboy Bebop in space"/>
+    <img src="/assets/ein-space.gif" alt="Gif of Ein from Cowboy Bebop in space"/>
 </div>
+
 # Graph-Ein
 A graph database implemented in [SQLite](https://sqlite.org/index.html).
 
