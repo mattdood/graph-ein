@@ -78,20 +78,98 @@ class Database:
         self.cursor.execute(sql_text, (source_id, target_id, properties))
 
     def delete_schema(self, schema_name: str):
-        pass
+        """Removes a 'schema' from the SQLite db.
 
-    def delete_node(self, schema_name: str):
-        pass
+        Params:
+            schema_name (str): Name to prepend to the table.
 
-    def delete_edge(self, schema_name: str, source: str):
-        pass
+        Returns:
+            None
+        """
+        sql_text = self._read_sql_file("delete-schema.sql", schema_name)
+        self.cursor.execute(sql_text)
 
-    def get_schemas(self, param: List=None):
-        pass
+    def delete_node(self, schema_name: str, node_id: str):
+        """Removes a 'schema' from the SQLite db.
 
-    def get_nodes(self, param: List=None):
-        pass
+        Params:
+            schema_name (str): Name to prepend to the table.
 
-    def get_edges(self, param: List=None):
-        pass
+        Returns:
+            None
+        """
+        sql_text = self._read_sql_file("delete-node.sql", schema_name)
+        self.cursor.execute(sql_text, node_id)
+
+    def delete_edge(self, schema_name: str, source_or_target_id: str):
+        """Removes all 'edge' rows from the SQLite db.
+
+        Params:
+            schema_name (str): Name to prepend to the table.
+            source_or_target_id (str): Source or target ID of a row.
+
+        Returns:
+            None
+        """
+        sql_text = self._read_sql_file("delete-edge.sql", schema_name)
+        self.cursor.execute(sql_text, source_or_target_id)
+
+    def get_schemas(self, schema_name: str=None):
+        """Retrieves all schemas matching schema name.
+
+        Executes a `LIKE` operation on the `sqlite_master`
+        table to retrieve table names (schemas).
+
+        Params:
+            schema_name (str|None): Schema to search for.
+                Wildcard allows for finding `_nodes` and `_edges` tables.
+        """
+        sql_text = self._read_sql_file("select-schemas.sql")
+        if schema_name:
+            schema_name = schema_name + "%"
+        return self.cursor.execute(sql_text, (schema_name,)).fetchall()
+
+    def get_nodes(self, schema_name: str, params: Dict):
+        """Retrieves all nodes matching schema name and params.
+
+        Executes a `LIKE` operation on an included `body` in params,
+        will execute an `=` operation on `id` in params. The
+        """
+        sql_text = self._read_sql_file("select-nodes.sql", schema_name)
+
+        sql_params = ""
+
+        # ugly but it works
+        if params["id"] and params["body"]:
+            sql_params += "id = " + params["id"] + " OR "
+            sql_params += "body LIKE " + json.dumps(params["body"])
+        else:
+            if params["id"]:
+                sql_params += "id = " + params["id"]
+            if params["body"]:
+                sql_params += "body LIKE " + json.dumps(params["body"])
+
+        return self.cursor.execute(sql_text, (sql_params, sql_params,)).fetchall()
+
+    def get_edges(self, schema_name: str, params: Dict):
+        """Retrieves all edges matching schema name and params.
+
+        Executes an `=` operation on `source_id`, `target_id`, or both
+        given a schema name.
+        """
+        sql_text = self._read_sql_file("select-edges.sql", schema_name)
+
+        sql_params = ""
+
+        # ugly but it works
+        if params["source_id"] and params["target_id"]:
+            sql_params += "source_id = " + params["source_id"] + " OR "
+            sql_params += "target_id = " + params["target_id"]
+        else:
+            if params["source_id"]:
+                sql_params += "source_id = " + params["source_id"]
+            if params["target_id"]:
+                sql_params += "target_id = " + params["target_id"]
+
+        return self.cursor.execute(sql_text, (schema_name, sql_params,)).fetchall()
 
