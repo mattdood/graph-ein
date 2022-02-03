@@ -1,13 +1,13 @@
 import json
 import pathlib
 import sqlite3
-from typing import Dict
+from typing import Dict, List, Optional
 
 
 class IncompleteStatementError(Exception):
     """An incomplete SQL statement was used."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.message = """An incomplete SQL statement was used.
 
         Statements must have termination with semicolons `;`
@@ -19,12 +19,12 @@ class IncompleteStatementError(Exception):
 class Database:
     """Database interface to SQLite DB."""
 
-    def __init__(self, db_path: str):
+    def __init__(self, db_path: str) -> None:
         """Establish connection to new or existing db."""
         self._connection = sqlite3.connect(db_path)
         self._cursor = self._connection.cursor()
 
-    def _read_sql_file(self, file_name: str, schema_name: str=None):
+    def _read_sql_file(self, file_name: str, schema_name: Optional[str]=None) -> str:
         """Read `.sql` utility files.
 
         Reads project SQL utility files and inserts the
@@ -63,7 +63,7 @@ class Database:
         self._cursor.executescript(sql_text)
         self._connection.commit()
 
-    def add_node(self, schema_name: str, json_data: Dict):
+    def add_node(self, schema_name: str, json_data: Dict) -> None:
         """Adds a 'node' to SQLite db.
 
         Params:
@@ -77,7 +77,8 @@ class Database:
         self._cursor.execute(sql_text, (json_data["id"], json.dumps(json_data)))
         self._connection.commit()
 
-    def add_edge(self, schema_name: str, source_id: str, target_id: str, properties: Dict=None):
+    def add_edge(self, schema_name: str,
+                source_id: str, target_id: str, properties: Optional[Dict]=None) -> None:
         """Adds a 'edge' to SQLite db.
 
         Params:
@@ -93,7 +94,7 @@ class Database:
         self._cursor.execute(sql_text, (source_id, target_id, properties))
         self._connection.commit()
 
-    def delete_schema(self, schema_name: str):
+    def delete_schema(self, schema_name: str) -> None:
         """Removes a 'schema' from the SQLite db.
 
         Params:
@@ -106,7 +107,7 @@ class Database:
         self._cursor.executescript(sql_text)
         self._connection.commit()
 
-    def delete_node(self, schema_name: str, node_id: str):
+    def delete_node(self, schema_name: str, node_id: str) -> None:
         """Removes a 'node' from the SQLite db.
 
         Params:
@@ -119,7 +120,7 @@ class Database:
         self._cursor.execute(sql_text, (node_id,))
         self._connection.commit()
 
-    def delete_edge(self, schema_name: str, source_or_target_id: str):
+    def delete_edge(self, schema_name: str, source_or_target_id: str) -> None:
         """Removes all 'edge' rows from the SQLite db.
 
         Params:
@@ -133,7 +134,7 @@ class Database:
         self._cursor.execute(sql_text, (source_or_target_id, source_or_target_id,))
         self._connection.commit()
 
-    def get_schemas(self, schema_name: str=None):
+    def get_schemas(self, schema_name: Optional[str]=None) -> List:
         """Retrieves all schemas matching schema name.
 
         Executes a `LIKE` operation on the `sqlite_master`
@@ -149,7 +150,8 @@ class Database:
         # concat operation in the `LIKE` clause
         return self._cursor.execute(sql_text, (schema_name or "",)).fetchall()
 
-    def get_nodes(self, schema_name: str, node_id: str=None, node_body: Dict=None):
+    def get_nodes(self, schema_name: str, node_id: Optional[str]=None,
+                node_body: Optional[Dict]=None) -> List:
         """Retrieves all nodes matching schema name and params.
 
         Executes a `LIKE` operation on an included `body` in params,
@@ -173,7 +175,8 @@ class Database:
         sql_params = " OR ".join(sql_params)
         return self._cursor.execute(sql_text, (sql_params,)).fetchall()
 
-    def get_edges(self, schema_name: str, source_id: str=None, target_id: str=None, properties: Dict=None):
+    def get_edges(self, schema_name: str, source_id: Optional[str]=None,
+                target_id: Optional[str]=None, properties: Optional[Dict]=None) -> List:
         """Retrieves all edges matching schema name and params.
 
         Executes an `=` operation on `source`, `target`, or both
@@ -202,7 +205,7 @@ class Database:
 
         return self._cursor.execute(sql_text).fetchall()
 
-    def execute_sql(self, sql_text: str):
+    def execute_sql(self, sql_text: str) -> Optional[List]:
         """Executes arbitrary SQL.
 
         Only use this is you know what you're
@@ -228,7 +231,7 @@ class Database:
         else:
             raise IncompleteStatementError
 
-    def execute_sql_script(self, sql_text: str):
+    def execute_sql_script(self, sql_text: str) -> Optional[List]:
         """Executes arbitrary SQL scripts.
 
         Only use this is you know what you're
