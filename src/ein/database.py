@@ -60,7 +60,8 @@ class Database:
             None
         """
         sql_text = self._read_sql_file("create-schema.sql", schema_name)
-        self._cursor.execute(sql_text)
+        self._cursor.executescript(sql_text)
+        self._connection.commit()
 
     def add_node(self, schema_name: str, json_data: Dict):
         """Adds a 'node' to SQLite db.
@@ -73,7 +74,8 @@ class Database:
             None
         """
         sql_text = self._read_sql_file("insert-node.sql", schema_name)
-        self._cursor.execute(sql_text, (json_data["id"], json_data))
+        self._cursor.execute(sql_text, (json_data["id"], json.dumps(json_data)))
+        self._connection.commit()
 
     def add_edge(self, schema_name: str, source_id: str, target_id: str, properties: Dict=None):
         """Adds a 'edge' to SQLite db.
@@ -89,6 +91,7 @@ class Database:
         """
         sql_text = self._read_sql_file("insert-edge.sql", schema_name)
         self._cursor.execute(sql_text, (source_id, target_id, properties))
+        self._connection.commit()
 
     def delete_schema(self, schema_name: str):
         """Removes a 'schema' from the SQLite db.
@@ -100,10 +103,11 @@ class Database:
             None
         """
         sql_text = self._read_sql_file("delete-schema.sql", schema_name)
-        self._cursor.execute(sql_text)
+        self._cursor.executescript(sql_text)
+        self._connection.commit()
 
     def delete_node(self, schema_name: str, node_id: str):
-        """Removes a 'schema' from the SQLite db.
+        """Removes a 'node' from the SQLite db.
 
         Params:
             schema_name (str): Name to prepend to the table.
@@ -112,7 +116,8 @@ class Database:
             None
         """
         sql_text = self._read_sql_file("delete-node.sql", schema_name)
-        self._cursor.execute(sql_text, node_id)
+        self._cursor.execute(sql_text, (node_id,))
+        self._connection.commit()
 
     def delete_edge(self, schema_name: str, source_or_target_id: str):
         """Removes all 'edge' rows from the SQLite db.
@@ -125,7 +130,8 @@ class Database:
             None
         """
         sql_text = self._read_sql_file("delete-edge.sql", schema_name)
-        self._cursor.execute(sql_text, source_or_target_id)
+        self._cursor.execute(sql_text, (source_or_target_id, source_or_target_id,))
+        self._connection.commit()
 
     def get_schemas(self, schema_name: str=None):
         """Retrieves all schemas matching schema name.
