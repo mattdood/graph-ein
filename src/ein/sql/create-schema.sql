@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS {{schema_name}}_nodes (
     id TEXT NOT NULL PRIMARY KEY,
-    body TEXT
+    body JSON
 );
 
 CREATE INDEX IF NOT EXISTS idx_id ON {{schema_name}}_nodes(id);

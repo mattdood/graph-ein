@@ -5,4 +5,4 @@ FROM
 WHERE
     type = 'table'
     AND
-    name LIKE ?
+    tbl_name LIKE '%' || ? || '%'
