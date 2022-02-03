@@ -200,7 +200,47 @@ class Database:
 
         Params:
             sql_text (str): Query to execute.
-        """
-        return self._cursor.execute(sql_text).fetchall()
 
+        Raises:
+            IncompleteStatementError: An incomplete
+                SQL statement was used.
+        """
+        if sqlite3.complete_statement(sql_text):
+
+            try:
+                self._cursor.execute(sql_text)
+
+                if "select" in sql_text.lower():
+                    return self._cursor.fetchall()
+
+            except sqlite3.Error as e:
+                print("SQLite raised an exception: ", e)
+        else:
+            raise IncompleteStatementError
+
+    def execute_sql_script(self, sql_text: str):
+        """Executes arbitrary SQL scripts.
+
+        Only use this is you know what you're
+        doing.
+
+        Params:
+            sql_text (str): Queries to execute.
+
+        Raises:
+            IncompleteStatementError: An incomplete
+                SQL statement was used.
+        """
+        if sqlite3.complete_statement(sql_text):
+
+            try:
+                self._cursor.executescript(sql_text)
+
+                if "select" in sql_text.lower():
+                    return self._cursor.fetchall()
+
+            except sqlite3.Error as e:
+                print("SQLite raised an exception: ", e.args[0])
+        else:
+            raise IncompleteStatementError
 
