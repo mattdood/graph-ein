@@ -143,54 +143,64 @@ class Database:
             schema_name (str|None): Schema to search for.
                 Wildcard allows for finding `_nodes` and `_edges` tables.
         """
-        sql_text = self._read_sql_file("select-schemas.sql")
-        if schema_name:
-            schema_name = schema_name + "%"
-        return self._cursor.execute(sql_text, (schema_name,)).fetchall()
+        sql_text = self._read_sql_file("select-schemas.sql", schema_name)
 
-    def get_nodes(self, schema_name: str, params: Dict):
+        # sqlite will turn `None` to `null`, so we use an emptry string for the
+        # concat operation in the `LIKE` clause
+        return self._cursor.execute(sql_text, (schema_name or "",)).fetchall()
+
+    def get_nodes(self, schema_name: str, node_id: str=None, node_body: Dict=None):
         """Retrieves all nodes matching schema name and params.
 
         Executes a `LIKE` operation on an included `body` in params,
         will execute an `=` operation on `id` in params. The
+
+        TODO:
+            * Finish testing on this
         """
         sql_text = self._read_sql_file("select-nodes.sql", schema_name)
 
-        sql_params = ""
+        sql_params = []
 
-        # ugly but it works
-        if params["id"] and params["body"]:
-            sql_params += "id = " + params["id"] + " OR "
-            sql_params += "body LIKE " + json.dumps(params["body"])
-        else:
-            if params["id"]:
-                sql_params += "id = " + params["id"]
-            if params["body"]:
-                sql_params += "body LIKE " + json.dumps(params["body"])
+        if node_id:
+            sql_params.append("id = {node_id}".format(node_id=node_id))
 
-        return self._cursor.execute(sql_text, (sql_params, sql_params,)).fetchall()
+        json_search = "json_extract(body, '$.{node_body_key}') LIKE '%{node_body_value}%'"
+        if node_body:
+            for key, value in node_body.items():
+                sql_params.append(json_search.format(node_body_key=key, node_body_value=value))
 
-    def get_edges(self, schema_name: str, params: Dict):
+        sql_params = " OR ".join(sql_params)
+        return self._cursor.execute(sql_text, (sql_params,)).fetchall()
+
+    def get_edges(self, schema_name: str, source_id: str=None, target_id: str=None, properties: Dict=None):
         """Retrieves all edges matching schema name and params.
 
-        Executes an `=` operation on `source_id`, `target_id`, or both
+        Executes an `=` operation on `source`, `target`, or both
         given a schema name.
         """
         sql_text = self._read_sql_file("select-edges.sql", schema_name)
 
-        sql_params = ""
+        sql_params = []
 
-        # ugly but it works
-        if params["source_id"] and params["target_id"]:
-            sql_params += "source_id = " + params["source_id"] + " OR "
-            sql_params += "target_id = " + params["target_id"]
-        else:
-            if params["source_id"]:
-                sql_params += "source_id = " + params["source_id"]
-            if params["target_id"]:
-                sql_params += "target_id = " + params["target_id"]
+        # create a param set for each param sent in
+        # columns need to be in double quotes
+        if source_id:
+            sql_params.append(""" "source" = '{source_id}'""".format(source_id=source_id))
+        if target_id:
+            sql_params.append(""" "target" = '{target_id}'""".format(target_id=target_id))
+        if properties:
+            sql_params.append(""" "properties" = '{properties}'""".format(properties=properties))
 
-        return self._cursor.execute(sql_text, (schema_name, sql_params,)).fetchall()
+        # add `OR`s between each param
+        sql_params = " OR ".join(sql_params)
+
+        # for some reason the `?` variable in SQLite does something weird
+        # to double quoted params passed as a string
+        # I don't know why, so we replace a placeholder (which is bad, but whatever)
+        sql_text = sql_text.replace("{{params}}", sql_params)
+
+        return self._cursor.execute(sql_text).fetchall()
 
     def execute_sql(self, sql_text: str):
         """Executes arbitrary SQL.
