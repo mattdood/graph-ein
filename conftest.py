@@ -5,6 +5,7 @@ import shutil
 from src.ein.database import Database
 
 TEST_DB = "test.db"
+TEST_SCHEMA = "test"
 
 @pytest.fixture()
 def db_setup():
