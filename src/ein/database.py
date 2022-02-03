@@ -4,6 +4,18 @@ import sqlite3
 from typing import Dict
 
 
+class IncompleteStatementError(Exception):
+    """An incomplete SQL statement was used."""
+
+    def __init__(self):
+        self.message = """An incomplete SQL statement was used.
+
+        Statements must have termination with semicolons `;`
+        and require closed string literals.
+        """
+        super().__init__(self.message)
+
+
 class Database:
     """Database interface to SQLite DB."""
 
@@ -26,12 +38,13 @@ class Database:
         Returns:
             sql_text (str): SQL text with the schema added.
         """
-        with open(pathlib.Path.cwd() / ".." / "sql" / file_name) as file:
+        with open(pathlib.Path.cwd() / "src/ein/sql" / file_name) as file:
             sql_text = file.read()
 
         if schema_name:
-            sql_text.replace("{{schema_name}}", schema_name)
-        return sql_text
+            return sql_text.replace("{{schema_name}}", schema_name)
+        else:
+            return sql_text
 
     def add_schema(self, schema_name: str) -> None:
         """Adds a 'schema' to SQLite db.
