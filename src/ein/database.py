@@ -150,6 +150,16 @@ class Database:
         # concat operation in the `LIKE` clause
         return self._cursor.execute(sql_text, (schema_name or "",)).fetchall()
 
+    def get_node(self, schema_name: str, node_id: str) -> Dict:
+        """Retrieve one node from the database.
+
+        TODO:
+            * Test this
+            * Ensure return structure is consistent
+        """
+        sql_text = self._read_sql_file("select-node.sql", schema_name)
+        return self._cursor.execute(sql_text, (node_id,)).fetchone()
+
     def get_nodes(self, schema_name: str, node_id: Optional[str]=None,
                 node_body: Optional[Dict]=None) -> List:
         """Retrieves all nodes matching schema name and params.
@@ -167,13 +177,29 @@ class Database:
         if node_id:
             sql_params.append("id = {node_id}".format(node_id=node_id))
 
-        json_search = "json_extract(body, '$.{node_body_key}') LIKE '%{node_body_value}%'"
         if node_body:
-            for key, value in node_body.items():
-                sql_params.append(json_search.format(node_body_key=key, node_body_value=value))
+            json_search = "json_extract(body, '$') LIKE '%{node_body}%'".format(
+                node_body=json.dumps(node_body),
+            )
+            print(json_search)
+            sql_params.append(json_search)
 
         sql_params = " OR ".join(sql_params)
         return self._cursor.execute(sql_text, (sql_params,)).fetchall()
+
+    def get_edge(self, schema_name: str, source_id: str, target_id: str) -> Dict:
+        """Retrieve one edge.
+
+        Get a single edge from the database.
+
+        TODO:
+            * Test this
+            * Ensure output format is consistent to Dict
+        """
+
+        sql_text = self._read_sql_file("select-edge.sql", schema_name)
+        edge = self._cursor.execute(sql_text, (source_id, target_id,)).fetchone()
+        return edge
 
     def get_edges(self, schema_name: str, source_id: Optional[str]=None,
                 target_id: Optional[str]=None, properties: Optional[Dict]=None) -> List:

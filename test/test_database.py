@@ -30,8 +30,6 @@ def test_database_executes_arbitrary_sql(db_setup):
 def test_database_reads_sql_file(db_setup):
     """`Database` objects can read SQL files and insert schemas."""
 
-    # TODO: Assert schema exists
-
     sql_text = db_setup._read_sql_file("create-schema.sql", TEST_SCHEMA)
 
     expected_sql_text = """
@@ -171,7 +169,7 @@ def test_database_add_edge(db_setup):
     assert edges_data == expected_edges_data
 
 
-@pytest.mark.skip(reason="Work on json query params")
+# @pytest.mark.skip(reason="Work on json query params")
 def test_database_get_nodes(db_setup):
     """Selects nodes based on params.
 
