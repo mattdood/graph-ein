@@ -3,6 +3,8 @@ import pathlib
 import sqlite3
 from typing import Dict, List, Optional
 
+ALLOWED_OPERATORS = {"and", "not", "or"}
+
 
 class IncompleteStatementError(Exception):
     """An incomplete SQL statement was used."""
@@ -16,6 +18,11 @@ class IncompleteStatementError(Exception):
         super().__init__(self.message)
 
 
+class DisallowedOperatorError(Exception):
+    """Disallowed operator, controlled by `ALLOWED_OPERATORS`."""
+    pass
+
+
 class Database:
     """Database interface to SQLite DB."""
 
@@ -24,7 +31,9 @@ class Database:
         self._connection = sqlite3.connect(db_path)
         self._cursor = self._connection.cursor()
 
-    def _read_sql_file(self, file_name: str, schema_name: Optional[str]=None) -> str:
+    def _read_sql_file(self,
+                       file_name: str,
+                       schema_name: Optional[str]=None) -> str:
         """Read `.sql` utility files.
 
         Reads project SQL utility files and inserts the
@@ -42,9 +51,9 @@ class Database:
             sql_text = file.read()
 
         if schema_name:
-            return sql_text.replace("{{schema_name}}", schema_name)
-        else:
-            return sql_text
+            sql_text = sql_text.replace("{{schema_name}}", schema_name)
+
+        return sql_text
 
     def add_schema(self, schema_name: str) -> None:
         """Adds a 'schema' to SQLite db.
@@ -161,31 +170,47 @@ class Database:
         return self._cursor.execute(sql_text, (node_id,)).fetchone()
 
     def get_nodes(self, schema_name: str, node_id: Optional[str]=None,
-                node_body: Optional[Dict]=None) -> List:
+                node_body: Optional[Dict]=None,
+                operator: str="or"
+        ) -> List:
         """Retrieves all nodes matching schema name and params.
 
         Executes a `LIKE` operation on an included `body` in params,
         will execute an `=` operation on `id` in params. The
-
-        TODO:
-            * Finish testing on this
         """
+
+        if operator.lower() not in ALLOWED_OPERATORS:
+            msg = f"Illegal operator passed to query: {operator}"
+            raise DisallowedOperatorError(msg)
+
         sql_text = self._read_sql_file("select-nodes.sql", schema_name)
 
         sql_params = []
 
         if node_id:
-            sql_params.append("id = {node_id}".format(node_id=node_id))
+            sql_params.append("id = '{node_id}'".format(node_id=node_id))
 
         if node_body:
-            json_search = "json_extract(body, '$') LIKE '%{node_body}%'".format(
+            json_search = 'json_extract(body, "$") LIKE \'%{node_body}%\''.format(
                 node_body=json.dumps(node_body),
             )
-            print(json_search)
+            # sanitize Dict input from string dump to
+            # remove trailing curly braces and compress to
+            # database stored format
+
+            # replace "%{"data": "here"}%"
+            # to "%"data": "here"%"
+            json_search = json_search.replace("%{", "%")
+            json_search = json_search.replace("}%", "%")
+
+            # remove ": ", they're stored without spaces
+            json_search = json_search.replace(": ", ":")
+
             sql_params.append(json_search)
 
-        sql_params = " OR ".join(sql_params)
-        return self._cursor.execute(sql_text, (sql_params,)).fetchall()
+        sql_params = f" {operator} ".join(sql_params)
+        sql_text = sql_text.replace("{{params}}", sql_params)
+        return self._cursor.execute(sql_text).fetchall()
 
     def get_edge(self, schema_name: str, source_id: str, target_id: str) -> Dict:
         """Retrieve one edge.

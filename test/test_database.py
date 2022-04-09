@@ -2,7 +2,7 @@ import pytest
 import sqlite3
 
 from conftest import TEST_DB, TEST_SCHEMA, db_setup
-from src.ein.database import Database, IncompleteStatementError
+from src.ein.database import Database, DisallowedOperatorError, IncompleteStatementError
 
 
 def test_database_init(db_setup):
@@ -169,20 +169,8 @@ def test_database_add_edge(db_setup):
     assert edges_data == expected_edges_data
 
 
-# @pytest.mark.skip(reason="Work on json query params")
 def test_database_get_nodes(db_setup):
-    """Selects nodes based on params.
-
-    TODO:
-        * Finish testing
-
-    Working query (manual):
-
-        db.add_node("test", {"id": "test-id", "body": "test-body"})
-
-        db.execute_sql("select * from test_nodes where json_extract(body, '$.body.other-data') LIKE '%str
-        ing-two%';")
-    """
+    """Selects nodes based on params."""
 
 
     db_setup.add_schema(TEST_SCHEMA)
@@ -200,13 +188,72 @@ def test_database_get_nodes(db_setup):
     db_setup.add_node(TEST_SCHEMA, node_one)
     db_setup.add_node(TEST_SCHEMA, node_two)
 
-    params = {
+    params_body = {
         "body": "selected-body"
     }
 
-    results = db_setup.get_nodes(TEST_SCHEMA, node_body=params)
+    results_body = db_setup.get_nodes(TEST_SCHEMA, node_body=params_body)
 
-    assert "selected-body" in results
+    assert "selected-body" in str(results_body)
+    assert len(results_body) == 2
+
+    params_id_body = {
+        "body": "selected-body"
+    }
+
+    results_id_body = db_setup.get_nodes(
+        TEST_SCHEMA,
+        node_id="select-node-test-2",
+        node_body=params_id_body,
+    )
+
+    assert "select-node-test-2" in str(results_id_body)
+    assert len(results_id_body) == 2
+
+
+    params_operator = {
+        "body": "selected-body"
+    }
+
+    results_operator = db_setup.get_nodes(
+        TEST_SCHEMA,
+        node_id="select-node-test-2",
+        node_body=params_operator,
+        operator="and",
+    )
+
+    assert "select-node-test-2" in str(results_operator)
+    assert len(results_operator) == 1
+
+
+def test_database_get_nodes_errors(db_setup):
+    db_setup.add_schema(TEST_SCHEMA)
+
+    node_one = {
+        "id": "select-node-test",
+        "body": "selected-body"
+    }
+
+    node_two = {
+        "id": "select-node-test-2",
+        "body": "selected-body"
+    }
+
+    db_setup.add_node(TEST_SCHEMA, node_one)
+    db_setup.add_node(TEST_SCHEMA, node_two)
+
+    params_operator = {
+        "body": "selected-body"
+    }
+
+    with pytest.raises(DisallowedOperatorError) as e_info:
+
+        db_setup.get_nodes(
+            TEST_SCHEMA,
+            node_id="select-node-test-2",
+            node_body=params_operator,
+            operator="something-wrong",
+        )
 
 
 def test_database_get_edges(db_setup):
