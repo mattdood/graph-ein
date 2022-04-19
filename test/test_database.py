@@ -275,9 +275,8 @@ def test_database_get_nodes_errors(db_setup):
             operator="something-wrong",
         )
 
-
-def test_database_get_edges(db_setup):
-    """Queries for edges."""
+def test_database_get_edge(db_setup):
+    """Queries for edge with a source ID and target ID."""
 
     db_setup.add_schema(TEST_SCHEMA)
 
@@ -296,8 +295,42 @@ def test_database_get_edges(db_setup):
 
     db_setup.add_edge(TEST_SCHEMA, node_one["id"], node_two["id"])
 
-    selected_edges = db_setup.get_edges(TEST_SCHEMA, node_one["id"], node_two["id"])
-    expected_edges = [("select-edge-test", "select-edge-test-2", None)]
+    selected_edge = db_setup.get_edge(
+        TEST_SCHEMA,
+        node_one["id"],
+        node_two["id"]
+    )
+    expected_edge = (node_one["id"], node_two["id"], None)
+
+    assert selected_edge == expected_edge
+
+
+def test_database_get_edges(db_setup):
+    """Queries for edges."""
+
+    db_setup.add_schema(TEST_SCHEMA)
+
+    node_one = {
+        "id": "select-edges-test",
+        "body": "selected-body"
+    }
+
+    node_two = {
+        "id": "select-edges-test-2",
+        "body": "selected-body"
+    }
+
+    db_setup.add_node(TEST_SCHEMA, node_one)
+    db_setup.add_node(TEST_SCHEMA, node_two)
+
+    db_setup.add_edge(TEST_SCHEMA, node_one["id"], node_two["id"])
+
+    selected_edges = db_setup.get_edges(
+        TEST_SCHEMA,
+        node_one["id"],
+        node_two["id"]
+    )
+    expected_edges = [(node_one["id"], node_two["id"], None)]
 
     assert selected_edges == expected_edges
 

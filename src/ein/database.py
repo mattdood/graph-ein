@@ -217,14 +217,19 @@ class Database:
         sql_text = sql_text.replace("{{params}}", sql_params)
         return self._cursor.execute(sql_text).fetchall()
 
-    def get_edge(self, schema_name: str, source_id: str, target_id: str) -> Dict:
+    def get_edge(self, schema_name: str, source_id: str, target_id: str) -> Tuple:
         """Retrieve one edge.
 
         Get a single edge from the database.
 
-        TODO:
-            * Test this
-            * Ensure output format is consistent to Dict
+        Params:
+            schema_name (str): Schema name to search.
+            source_id (str): Source ID of the edge.
+            target_id (str): Target ID of the edge.
+
+        Returns:
+            result (Tuple): First result matching both source and
+                target IDs.
         """
 
         sql_text = self._read_sql_file("select-edge.sql", schema_name)
@@ -241,6 +246,16 @@ class Database:
 
         Executes an `=` operation on `source`, `target`, or both
         given a schema name.
+
+        Params:
+            schema_name (str): Schema name to search.
+            source_id (str): Optional source ID of the edge.
+            target_id (str): Optional target ID of the edge.
+            properties (Dict): Optional list of properties to search on.
+
+        Returns:
+            result (List): All results matching the parameters passed.
+                Uses an `OR` operation on each parameter.
         """
         sql_text = self._read_sql_file("select-edges.sql", schema_name)
 
@@ -268,11 +283,14 @@ class Database:
     def execute_sql(self, sql_text: str) -> Optional[List]:
         """Executes arbitrary SQL.
 
-        Only use this is you know what you're
+        Only use this if you know what you're
         doing.
 
         Params:
             sql_text (str): Query to execute.
+
+        Returns:
+            results (List): A list of SQLite rows.
 
         Raises:
             IncompleteStatementError: An incomplete
@@ -294,11 +312,14 @@ class Database:
     def execute_sql_script(self, sql_text: str) -> Optional[List]:
         """Executes arbitrary SQL scripts.
 
-        Only use this is you know what you're
+        Only use this if you know what you're
         doing.
 
         Params:
             sql_text (str): Queries to execute.
+
+        Returns:
+            results (List): A list of SQLite rows.
 
         Raises:
             IncompleteStatementError: An incomplete
