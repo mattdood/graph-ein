@@ -168,10 +168,8 @@ def test_database_add_edge(db_setup):
 
     assert edges_data == expected_edges_data
 
-
-def test_database_get_nodes(db_setup):
-    """Selects nodes based on params."""
-
+def test_database_get_node(db_setup):
+    """Selects node based on id."""
 
     db_setup.add_schema(TEST_SCHEMA)
 
@@ -180,8 +178,30 @@ def test_database_get_nodes(db_setup):
         "body": "selected-body"
     }
 
+    db_setup.add_node(TEST_SCHEMA, node_one)
+
+    results_body = db_setup.get_node(
+        TEST_SCHEMA,
+        node_id=node_one["id"]
+    )
+
+    assert "select-node-test" in str(results_body)
+    # tuple of 2 columns
+    assert len(results_body) == 2
+
+
+def test_database_get_nodes(db_setup):
+    """Selects nodes based on params."""
+
+    db_setup.add_schema(TEST_SCHEMA)
+
+    node_one = {
+        "id": "select-nodes-test",
+        "body": "selected-body"
+    }
+
     node_two = {
-        "id": "select-node-test-2",
+        "id": "select-nodes-test-2",
         "body": "selected-body"
     }
 
@@ -207,7 +227,7 @@ def test_database_get_nodes(db_setup):
         node_body=params_id_body,
     )
 
-    assert "select-node-test-2" in str(results_id_body)
+    assert "select-nodes-test-2" in str(results_id_body)
     assert len(results_id_body) == 2
 
 
@@ -217,12 +237,12 @@ def test_database_get_nodes(db_setup):
 
     results_operator = db_setup.get_nodes(
         TEST_SCHEMA,
-        node_id="select-node-test-2",
+        node_id="select-nodes-test-2",
         node_body=params_operator,
         operator="and",
     )
 
-    assert "select-node-test-2" in str(results_operator)
+    assert "select-nodes-test-2" in str(results_operator)
     assert len(results_operator) == 1
 
 

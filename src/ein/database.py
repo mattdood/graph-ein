@@ -1,7 +1,7 @@
 import json
 import pathlib
 import sqlite3
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Tuple
 
 ALLOWED_OPERATORS = {"and", "not", "or"}
 
@@ -159,19 +159,24 @@ class Database:
         # concat operation in the `LIKE` clause
         return self._cursor.execute(sql_text, (schema_name or "",)).fetchall()
 
-    def get_node(self, schema_name: str, node_id: str) -> Dict:
+    def get_node(self, schema_name: str, node_id: str) -> Tuple:
         """Retrieve one node from the database.
 
-        TODO:
-            * Test this
-            * Ensure return structure is consistent
+        Params:
+            schema_name (str): Schema name to search with.
+
+        Returns:
+            result (Tuple): Tuple of the row fetched.
+
         """
         sql_text = self._read_sql_file("select-node.sql", schema_name)
         return self._cursor.execute(sql_text, (node_id,)).fetchone()
 
-    def get_nodes(self, schema_name: str, node_id: Optional[str]=None,
-                node_body: Optional[Dict]=None,
-                operator: str="or"
+    def get_nodes(self,
+                  schema_name: str,
+                  node_id: Optional[str]=None,
+                  node_body: Optional[Dict]=None,
+                  operator: str="or"
         ) -> List:
         """Retrieves all nodes matching schema name and params.
 
@@ -226,8 +231,12 @@ class Database:
         edge = self._cursor.execute(sql_text, (source_id, target_id,)).fetchone()
         return edge
 
-    def get_edges(self, schema_name: str, source_id: Optional[str]=None,
-                target_id: Optional[str]=None, properties: Optional[Dict]=None) -> List:
+    def get_edges(self,
+                  schema_name: str,
+                  source_id: Optional[str]=None,
+                  target_id: Optional[str]=None,
+                  properties: Optional[Dict]=None
+        ) -> List:
         """Retrieves all edges matching schema name and params.
 
         Executes an `=` operation on `source`, `target`, or both
