@@ -257,6 +257,31 @@ def test_database_update_edge(db_setup):
     assert edges_data == expected_edges_data
 
 
+def test_database_update_schema(db_setup):
+    """Update a schema in a database and retrieve it."""
+
+    db_setup.add_schema(TEST_SCHEMA)
+
+    db_setup.update_schema(TEST_SCHEMA, "new_name")
+
+    check_schema_tables_sql = """
+    SELECT
+        name
+    FROM
+        sqlite_master
+    WHERE
+        type = 'table'
+        AND
+        tbl_name LIKE 'new_name%';
+    """
+
+    schema_data = db_setup.execute_sql(check_schema_tables_sql)
+
+    expected_schema_tables = [("new_name_nodes",), ("new_name_edges",)]
+
+    assert schema_data == expected_schema_tables
+
+
 def test_database_get_node(db_setup):
     """Selects node based on id."""
 

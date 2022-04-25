@@ -103,6 +103,21 @@ class Database:
         self._cursor.execute(sql_text, (source_id, target_id, json.dumps(properties)))
         self._connection.commit()
 
+    def update_schema(self, schema_name: str, new_schema_name: str) -> None:
+        """Updates a 'schema' in the SQLite db.
+
+        Params:
+            schema_name(str): Name to prepend to tables.
+            new_schema_name(str): New name to change tables to.
+
+        Returns:
+            None
+        """
+        sql_text = self._read_sql_file("update-schema.sql", schema_name)
+        sql_text = sql_text.replace("{{new_schema_name}}", new_schema_name)
+        self._cursor.executescript(sql_text)
+        self._connection.commit()
+
     def update_node(self, schema_name: str, node_id: str, json_data: Dict) -> None:
         """Updates a 'node' in the SQLite db.
 
