@@ -7,7 +7,7 @@ class Edge:
     """Edge object from the SQLite db."""
 
     def __init__(self, source_id: Node, target_id: Node, properties: Dict=None):
-        """Representation of schema from {{schema_name}}_edges."""
+        """Representation of 'edge' from {{schema_name}}_edges."""
         self.source_id = source_id
         self.target_id = target_id
         self.properties = properties

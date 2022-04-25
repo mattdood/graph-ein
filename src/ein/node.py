@@ -7,7 +7,7 @@ class Node:
     """Node object from the SQLite db."""
 
     def __init__(self, id: str, body: Dict, edges: List[Edge]):
-        """Representation of schema from {{schema_name}}_nodes."""
+        """Representation of 'node' from {{schema_name}}_nodes."""
         self.id = id
         self.body = body
         self.edges = edges
@@ -17,4 +17,7 @@ class Node:
 
     def update_body(self, body: Dict) -> None:
         self.body = body
+
+    def update_edge(self, source_id: str, target_id: str) -> None:
+        pass
 
