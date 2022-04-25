@@ -86,8 +86,11 @@ class Database:
         self._cursor.execute(sql_text, (json_data["id"], json.dumps(json_data)))
         self._connection.commit()
 
-    def add_edge(self, schema_name: str,
-                source_id: str, target_id: str, properties: Optional[Dict]=None) -> None:
+    def add_edge(self,
+                 schema_name: str,
+                 source_id: str,
+                 target_id: str,
+                 properties: Optional[Dict]=None) -> None:
         """Adds a 'edge' to SQLite db.
 
         Params:
@@ -124,6 +127,7 @@ class Database:
         Params:
             schema_name(str): Name to prepend to tables.
             node_id (str): Node ID.
+            json_data (Dict): Data to update.
 
         Returns:
             None
@@ -141,7 +145,9 @@ class Database:
 
         Params:
             schema_name(str): Name to prepend to tables.
-            node_id (str): Node ID.
+            source_id (str): Origin ID of the edge.
+            target_id (str): Direction of the link in the edge.
+            json_data (Dict): Properties of the link (e.g., weights) to update.
 
         Returns:
             None
@@ -199,6 +205,9 @@ class Database:
         Params:
             schema_name (str|None): Schema to search for.
                 Wildcard allows for finding `_nodes` and `_edges` tables.
+
+        Returns:
+            results (List(Tuple)): List of all matching schemas.
         """
         sql_text = self._read_sql_file("select-schemas.sql", schema_name)
 
@@ -215,7 +224,6 @@ class Database:
 
         Returns:
             result (Tuple): Tuple of the row fetched.
-
         """
         sql_text = self._read_sql_file("select-node.sql", schema_name)
         return self._cursor.execute(sql_text, (node_id,)).fetchone()
@@ -230,6 +238,16 @@ class Database:
 
         Executes a `LIKE` operation on an included `body` in params,
         will execute an `=` operation on `id` in params. The
+
+        Params:
+            schema_name (str): Name to prepend to tables.
+            node_id: (str|None): Node ID to pass for search.
+            node_body (Dict): The data representing a node to search on.
+            operator (str): Operator to use for `node_id` and `node_body`, defaults to "or".
+                Options include: "or", "and", "not". Note: Cannot use "not" on `node_id`.
+
+        Returns:
+            None
         """
 
         if operator.lower() not in ALLOWED_OPERATORS:
