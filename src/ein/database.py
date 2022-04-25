@@ -100,7 +100,39 @@ class Database:
             None
         """
         sql_text = self._read_sql_file("insert-edge.sql", schema_name)
-        self._cursor.execute(sql_text, (source_id, target_id, properties))
+        self._cursor.execute(sql_text, (source_id, target_id, json.dumps(properties)))
+        self._connection.commit()
+
+    def update_node(self, schema_name: str, node_id: str, json_data: Dict) -> None:
+        """Updates a 'node' in the SQLite db.
+
+        Params:
+            schema_name(str): Name to prepend to tables.
+            node_id (str): Node ID.
+
+        Returns:
+            None
+        """
+        sql_text = self._read_sql_file("update-node.sql", schema_name)
+        self._cursor.execute(sql_text, (json.dumps(json_data), node_id))
+        self._connection.commit()
+
+    def update_edge(self,
+                    schema_name: str,
+                    source_id: str,
+                    target_id: str,
+                    json_data: Dict) -> None:
+        """Updates a 'node' in the SQLite db.
+
+        Params:
+            schema_name(str): Name to prepend to tables.
+            node_id (str): Node ID.
+
+        Returns:
+            None
+        """
+        sql_text = self._read_sql_file("update-edge.sql", schema_name)
+        self._cursor.execute(sql_text, (json.dumps(json_data), source_id, target_id))
         self._connection.commit()
 
     def delete_schema(self, schema_name: str) -> None:
@@ -164,6 +196,7 @@ class Database:
 
         Params:
             schema_name (str): Schema name to search with.
+            node_id (str): Node ID.
 
         Returns:
             result (Tuple): Tuple of the row fetched.
