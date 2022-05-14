@@ -26,9 +26,27 @@ class DisallowedOperatorError(Exception):
 class Database:
     """Database interface to SQLite DB."""
 
-    def __init__(self, db_path: str) -> None:
-        """Establish connection to new or existing db."""
+    def __init__(self, db_path: str, row_factory: bool = True) -> None:
+        """Establish connection to new or existing db.
+
+        Params:
+            db_path (str): Path to a database. If it doesn't exist
+                it will be created.
+            row_factory (bool): Uses the `sqlite3.Row` object to return
+                from queries. This gives dictionary-like key access to
+                column names. Defaults to `True`.
+
+        Returns:
+            None
+        """
         self._connection = sqlite3.connect(db_path)
+
+        # Returns items as a sqlite3.Row
+        # this allows reference to columns with
+        # a dictionary key
+        if row_factory:
+            self._connection.row_factory = sqlite3.Row
+
         self._cursor = self._connection.cursor()
 
     def _read_sql_file(self,
