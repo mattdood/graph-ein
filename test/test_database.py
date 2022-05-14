@@ -470,13 +470,43 @@ def test_database_delete_node(db_setup):
     db_setup.add_schema(TEST_SCHEMA)
 
     node_one = {
-        "id": "select-edge-test",
+        "id": "delete-node-test",
         "body": "selected-body"
     }
 
     db_setup.add_node(TEST_SCHEMA, node_one)
 
     db_setup.delete_node(TEST_SCHEMA, node_one["id"])
+
+    node_count_sql = """
+    SELECT count(*) FROM {schema_name}_nodes;
+    """.format(schema_name=TEST_SCHEMA)
+
+    node_count = db_setup.execute_sql(node_count_sql)
+    expected_node_count = [(0,)]
+
+    assert node_count == expected_node_count
+
+
+def test_database_delete_nodes(db_setup):
+    """Deletes a test node."""
+
+    db_setup.add_schema(TEST_SCHEMA)
+
+    node_one = {
+        "id": "delete-nodes-test",
+        "body": "selected-body"
+    }
+
+    node_two = {
+        "id": "delete-nodes-test-2",
+        "body": "selected-body"
+    }
+
+    db_setup.add_node(TEST_SCHEMA, node_one)
+    db_setup.add_node(TEST_SCHEMA, node_two)
+
+    db_setup.delete_nodes(TEST_SCHEMA, [node_one["id"], node_two["id"]])
 
     node_count_sql = """
     SELECT count(*) FROM {schema_name}_nodes;
@@ -504,12 +534,12 @@ def test_database_delete_edge(db_setup):
     db_setup.add_schema(TEST_SCHEMA)
 
     node_one = {
-        "id": "select-edge-test",
+        "id": "delete-edge-test",
         "body": "selected-body"
     }
 
     node_two = {
-        "id": "select-edge-test-2",
+        "id": "delete-edge-test-2",
         "body": "selected-body"
     }
 
@@ -518,7 +548,38 @@ def test_database_delete_edge(db_setup):
 
     db_setup.add_edge(TEST_SCHEMA, node_one["id"], node_two["id"])
 
-    db_setup.delete_edge(TEST_SCHEMA, node_one["id"])
+    db_setup.delete_edge(TEST_SCHEMA, node_one["id"], node_two["id"])
+
+    edge_count_sql = """
+    SELECT count(*) FROM {schema_name}_edges;
+    """.format(schema_name=TEST_SCHEMA)
+
+    edge_count = db_setup.execute_sql(edge_count_sql)
+    expected_edge_count = [(0,)]
+
+    assert edge_count == expected_edge_count
+
+
+def test_database_delete_edges(db_setup):
+
+    db_setup.add_schema(TEST_SCHEMA)
+
+    node_one = {
+        "id": "delete-edges-test",
+        "body": "selected-body"
+    }
+
+    node_two = {
+        "id": "delete-edges-test-2",
+        "body": "selected-body"
+    }
+
+    db_setup.add_node(TEST_SCHEMA, node_one)
+    db_setup.add_node(TEST_SCHEMA, node_two)
+
+    db_setup.add_edge(TEST_SCHEMA, node_one["id"], node_two["id"])
+
+    db_setup.delete_edges(TEST_SCHEMA, node_one["id"])
 
     edge_count_sql = """
     SELECT count(*) FROM {schema_name}_edges;

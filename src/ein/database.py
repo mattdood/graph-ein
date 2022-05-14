@@ -108,7 +108,7 @@ class Database:
                  schema_name: str,
                  source_id: str,
                  target_id: str,
-                 properties: Optional[Dict]=None) -> None:
+                 properties: Optional[Dict]) -> None:
         """Adds a 'edge' to SQLite db.
 
         Params:
@@ -161,20 +161,20 @@ class Database:
                     schema_name: str,
                     source_id: str,
                     target_id: str,
-                    json_data: Dict) -> None:
+                    properties: Optional[Dict]) -> None:
         """Updates a 'node' in the SQLite db.
 
         Params:
             schema_name(str): Name to prepend to tables.
             source_id (str): Origin ID of the edge.
             target_id (str): Direction of the link in the edge.
-            json_data (Dict): Properties of the link (e.g., weights) to update.
+            properties (Dict): Properties of the link (e.g., weights) to update.
 
         Returns:
             None
         """
         sql_text = self._read_sql_file("update-edge.sql", schema_name)
-        self._cursor.execute(sql_text, (json.dumps(json_data), source_id, target_id))
+        self._cursor.execute(sql_text, (json.dumps(properties), source_id, target_id))
         self._connection.commit()
 
     def delete_schema(self, schema_name: str) -> None:
@@ -203,7 +203,35 @@ class Database:
         self._cursor.execute(sql_text, (node_id,))
         self._connection.commit()
 
-    def delete_edge(self, schema_name: str, source_or_target_id: str) -> None:
+    def delete_nodes(self, schema_name: str, node_ids: List[str]) -> None:
+        """ This bulk deletes 'nodes' in one transaction.
+
+        TODO:
+            * Implement and test
+        """
+        sql_text = self._read_sql_file("delete-nodes.sql", schema_name)
+        node_list = (", ").join(f"'{node}'" for node in node_ids)
+        nodes = f"({node_list})"
+        sql_text = sql_text.replace("{{node_ids}}", nodes)
+        self._cursor.execute(sql_text)
+        self._connection.commit()
+
+    def delete_edge(self, schema_name: str, source_id: str, target_id: str) -> None:
+        """Removes one 'edge' row from the SQLite db.
+
+        Params:
+            schema_name (str): Name to prepend to the table.
+            source_id (str): Source ID of a row.
+            target_id (str): Target ID of a row.
+
+        Returns:
+            None
+        """
+        sql_text = self._read_sql_file("delete-edge.sql", schema_name)
+        self._cursor.execute(sql_text, (source_id, target_id,))
+        self._connection.commit()
+
+    def delete_edges(self, schema_name: str, source_or_target_id: str) -> None:
         """Removes all 'edge' rows from the SQLite db.
 
         Params:
@@ -213,7 +241,7 @@ class Database:
         Returns:
             None
         """
-        sql_text = self._read_sql_file("delete-edge.sql", schema_name)
+        sql_text = self._read_sql_file("delete-edges.sql", schema_name)
         self._cursor.execute(sql_text, (source_or_target_id, source_or_target_id,))
         self._connection.commit()
 
