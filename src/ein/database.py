@@ -139,7 +139,10 @@ class Database:
         self._cursor.executescript(sql_text)
         self._connection.commit()
 
-    def update_node(self, schema_name: str, node_id: str, json_data: Dict) -> None:
+    def update_node(self,
+                    schema_name: str,
+                    node_id: str,
+                    json_data: Dict) -> None:
         """Updates a 'node' in the SQLite db.
 
         Params:
@@ -250,8 +253,7 @@ class Database:
                   schema_name: str,
                   node_id: Optional[str]=None,
                   node_body: Optional[Dict]=None,
-                  operator: str="or"
-        ) -> List:
+                  operator: str="or") -> List:
         """Retrieves all nodes matching schema name and params.
 
         Executes a `LIKE` operation on an included `body` in params,
@@ -301,7 +303,10 @@ class Database:
         sql_text = sql_text.replace("{{params}}", sql_params)
         return self._cursor.execute(sql_text).fetchall()
 
-    def get_edge(self, schema_name: str, source_id: str, target_id: str) -> Tuple:
+    def get_edge(self,
+                 schema_name: str,
+                 source_id: str,
+                 target_id: str) -> Tuple:
         """Retrieve one edge.
 
         Get a single edge from the database.
@@ -324,8 +329,7 @@ class Database:
                   schema_name: str,
                   source_id: Optional[str]=None,
                   target_id: Optional[str]=None,
-                  properties: Optional[Dict]=None
-        ) -> List:
+                  properties: Optional[Dict]=None) -> List:
         """Retrieves all edges matching schema name and params.
 
         Executes an `=` operation on `source`, `target`, or both
