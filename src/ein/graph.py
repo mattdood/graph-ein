@@ -1,4 +1,6 @@
-from typing import Dict, List, Union
+import json
+import sqlite3
+from typing import Dict, List, Optional, Union
 
 from .database import Database
 from .edge import Edge
@@ -8,10 +10,25 @@ from .node import Node
 class Graph:
     """Graph representation from SQLite db."""
 
-    def __init__(self, db_path: str, nodes: Dict[str, Node], edges: List[Edge]):
-        self.database = Database(db_path)
-        self.nodes = nodes
-        self.edges = edges
+    def __init__(self, db_path: str) -> None:
+        """Database initialization from new or existing path.
+
+        Params:
+            db_path (str): Path to a new SQLite database
+                or existing database.
+        """
+        self.database = Database(db_path=db_path, row_factory=True)
+        self.nodes = self._all_schema_nodes()
+        self.edges = self._all_schema_edges()
+
+    def _all_schema_nodes(self) -> Dict[str, Node]:
+        pass
+
+    def _all_schema_edges(self) -> List[Edge]:
+        pass
+
+    def add_schema(self, schema_name: str) -> None:
+        self.database.add_schema(schema_name=schema_name)
 
     def add_node(self, schema_name: str, json_data: Dict) -> None:
         self.database.add_node(schema_name=schema_name, json_data=json_data)
