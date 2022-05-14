@@ -77,6 +77,31 @@ class Graph:
     def delete_node(self, schema_name: str, node_id: str) -> None:
         self.database.delete_node(schema_name=schema_name, node_id=node_id)
 
-    def delete_edge(self, schema_name: str, source_or_target_id: str) -> None:
-        self.database.delete_edge(schema_name=schema_name, source_or_target_id=source_or_target_id)
+    def delete_edge(self, edge: Edge) -> None:
+        self.database.delete_edge(
+            schema_name=edge.schema_name,
+            source_id=edge.source_id.id,
+            target_id=edge.target_id.id,
+        )
+        self.edges.remove(edge)
+
+    def _create_node(self,
+                     schema_name: str,
+                     node_row: sqlite3.Row,
+                     node_edges: List[sqlite3.Row]) -> Node:
+        edges = [self._create_edge(schema_name, edge) for edge in node_edges]
+        return Node(
+            schema_name=schema_name,
+            id=node_row["id"],
+            body=json.loads(node_row["body"]),
+            edges=edges,
+        )
+
+    def _create_edge(self, schema_name: str, edge_row: sqlite3.Row) -> Edge:
+        return Edge(
+            schema_name=schema_name,
+            source_id=edge_row["source_id"],
+            target_id=edge_row["target_id"],
+            properties=json.loads(edge_row["properties"]),
+        )
 
