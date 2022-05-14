@@ -1,4 +1,4 @@
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 from .edge import Edge
 
@@ -6,18 +6,14 @@ from .edge import Edge
 class Node:
     """Node object from the SQLite db."""
 
-    def __init__(self, id: str, body: Dict, edges: List[Edge]):
+    def __init__(self,
+                 schema_name: str,
+                 id: str,
+                 body: Dict,
+                 edges: Optional[List[Edge]] = None) -> None:
         """Representation of 'node' from {{schema_name}}_nodes."""
+        self.schema_name = schema_name
         self.id = id
         self.body = body
         self.edges = edges
-
-    def update_id(self, id: str) -> None:
-        self.id = id
-
-    def update_body(self, body: Dict) -> None:
-        self.body = body
-
-    def update_edge(self, source_id: str, target_id: str) -> None:
-        pass
 
