@@ -1,7 +1,7 @@
 import json
 import pathlib
 import sqlite3
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple, Union
 
 ALLOWED_OPERATORS = {"and", "not", "or"}
 
@@ -51,7 +51,7 @@ class Database:
 
     def _read_sql_file(self,
                        file_name: str,
-                       schema_name: Optional[str]=None) -> str:
+                       schema_name: Optional[str] = None) -> str:
         """Read `.sql` utility files.
 
         Reads project SQL utility files and inserts the
@@ -108,7 +108,7 @@ class Database:
                  schema_name: str,
                  source_id: str,
                  target_id: str,
-                 properties: Optional[Dict]) -> None:
+                 properties: Optional[Dict] = None) -> None:
         """Adds a 'edge' to SQLite db.
 
         Params:
@@ -142,27 +142,27 @@ class Database:
     def update_node(self,
                     schema_name: str,
                     node_id: str,
-                    json_data: Dict) -> None:
+                    node_body: Dict) -> None:
         """Updates a 'node' in the SQLite db.
 
         Params:
             schema_name(str): Name to prepend to tables.
             node_id (str): Node ID.
-            json_data (Dict): Data to update.
+            node_body (Dict): Data to update.
 
         Returns:
             None
         """
         sql_text = self._read_sql_file("update-node.sql", schema_name)
-        self._cursor.execute(sql_text, (json.dumps(json_data), node_id))
+        self._cursor.execute(sql_text, (json.dumps(node_body), node_id))
         self._connection.commit()
 
     def update_edge(self,
                     schema_name: str,
                     source_id: str,
                     target_id: str,
-                    properties: Optional[Dict]) -> None:
-        """Updates a 'node' in the SQLite db.
+                    properties: Optional[Dict] = None) -> None:
+        """Updates an 'edge' in the SQLite db.
 
         Params:
             schema_name(str): Name to prepend to tables.
@@ -245,7 +245,7 @@ class Database:
         self._cursor.execute(sql_text, (source_or_target_id, source_or_target_id,))
         self._connection.commit()
 
-    def get_schemas(self, schema_name: Optional[str]=None) -> List:
+    def get_schemas(self, schema_name: Optional[str] = None) -> List[Union[Tuple, sqlite3.Row]]:
         """Retrieves all schemas matching schema name.
 
         Executes a `LIKE` operation on the `sqlite_master`
@@ -264,7 +264,7 @@ class Database:
         # concat operation in the `LIKE` clause
         return self._cursor.execute(sql_text, (schema_name or "",)).fetchall()
 
-    def get_node(self, schema_name: str, node_id: str) -> Tuple:
+    def get_node(self, schema_name: str, node_id: str) -> Union[Tuple, sqlite3.Row]:
         """Retrieve one node from the database.
 
         Params:
@@ -279,9 +279,9 @@ class Database:
 
     def get_nodes(self,
                   schema_name: str,
-                  node_id: Optional[str]=None,
-                  node_body: Optional[Dict]=None,
-                  operator: str="or") -> List:
+                  node_id: Optional[str] = None,
+                  node_body: Optional[Dict] = None,
+                  operator: str = "or") -> List[Union[Tuple, sqlite3.Row]]:
         """Retrieves all nodes matching schema name and params.
 
         Executes a `LIKE` operation on an included `body` in params,
@@ -334,7 +334,7 @@ class Database:
     def get_edge(self,
                  schema_name: str,
                  source_id: str,
-                 target_id: str) -> Tuple:
+                 target_id: str) -> Union[Tuple, sqlite3.Row]:
         """Retrieve one edge.
 
         Get a single edge from the database.
@@ -355,9 +355,9 @@ class Database:
 
     def get_edges(self,
                   schema_name: str,
-                  source_id: Optional[str]=None,
-                  target_id: Optional[str]=None,
-                  properties: Optional[Dict]=None) -> List:
+                  source_id: Optional[str] = None,
+                  target_id: Optional[str] = None,
+                  properties: Optional[Dict] = None) -> List[Union[Tuple, sqlite3.Row]]:
         """Retrieves all edges matching schema name and params.
 
         Executes an `=` operation on `source`, `target`, or both
