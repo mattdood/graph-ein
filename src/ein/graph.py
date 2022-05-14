@@ -63,17 +63,45 @@ class Graph:
         )
         self.edges.append(self._create_edge(schema_name=schema_name, edge_row=edge_data))
 
-    def update_node(self, schema_name: str, node_id: str, json_data: Dict) -> None:
+    def update_node(self, node: Node, updated_body: Dict) -> None:
         self.database.update_node(
-            schema_name=schema_name,
-            node_id=node_id,
-            json_data=json_data
+            schema_name=node.schema_name,
+            node_id=node.id,
+            node_body=updated_body,
         )
-        updated_node_data = self.database.get_node(schema_name=schema_name, node_id=node_id))
-        updated_node_edges = self.database.get_edges(schema_name=schema_name, source_id=node_id)
-        # fix this
-        updated_node = Node(id=updated_node_data[0], body=updated_node_data[1], updated_node_edges[0])
-        self.nodes[node_id] =
+        updated_node_data = self.database.get_node(schema_name=node.schema_name, node_id=node.id)
+        updated_node_edges = self.database.get_edges(
+            schema_name=node.schema_name,
+            source_id=updated_node_data["id"],
+            target_id=updated_node_data["id"],
+        )
+
+        updated_node = self._create_node(
+            schema_name=node.schema_name,
+            node_row=updated_node_data,
+            node_edges=updated_node_edges,
+        )
+
+        self.nodes[updated_node.id] = updated_node
+
+    def update_edge(self, edge: Edge, properties: Optional[Dict] = None) -> None:
+        self.database.update_edge(
+            schema_name=edge.schema_name,
+            source_id=edge.source_id.id,
+            target_id=edge.target_id.id,
+            properties=properties,
+        )
+        updated_edge_data = self.database.get_edge(
+            schema_name=edge.schema_name,
+            source_id=edge.source_id.id,
+            target_id=edge.target_id.id,
+        )
+        updated_edge = self._create_edge(schema_name=edge.schema_name, edge_row=updated_edge_data)
+        for edge in self.edges:
+            if edge == updated_edge:
+                self.edges.remove(edge)
+
+        self.edges.append(updated_edge)
 
     def get_node(self, node_id: str) -> Union[Node, None]:
         """Fetch a node."""
