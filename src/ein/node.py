@@ -1,6 +1,4 @@
-from typing import Dict, List, Optional
-
-from .edge import Edge
+from typing import Dict
 
 
 class Node:
@@ -9,11 +7,9 @@ class Node:
     def __init__(self,
                  schema_name: str,
                  id: str,
-                 body: Dict,
-                 edges: Optional[List[Edge]] = None) -> None:
+                 body: Dict) -> None:
         """Representation of 'node' from {{schema_name}}_nodes."""
         self.schema_name = schema_name
         self.id = id
         self.body = body
-        self.edges = edges
 

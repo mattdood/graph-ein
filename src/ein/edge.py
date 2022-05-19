@@ -1,6 +1,6 @@
 from typing import Dict, Optional
 
-from .node import Node
+from src.ein.node import Node
 
 
 class Edge:
@@ -8,19 +8,19 @@ class Edge:
 
     def __init__(self,
                  schema_name: str,
-                 source_id: Node,
-                 target_id: Node,
+                 source: Node,
+                 target: Node,
                  properties: Optional[Dict] = None) -> None:
         """Representation of 'edge' from {{schema_name}}_edges."""
         self.schema_name = schema_name
-        self.source_id = source_id
-        self.target_id = target_id
+        self.source = source
+        self.target = target
         self.properties = properties
 
-    def __eq__(self, source_id: str, target_id: str) -> bool:
+    def __eq__(self, source: Node, target: Node) -> bool:
         return (
-            self.source_id == source_id
+            self.source.id == source.id
             and
-            self.target_id == target_id
+            self.target.id == target.id
         )
 
