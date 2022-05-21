@@ -23,13 +23,59 @@ class Graph:
         self.edges = self._all_schema_edges()
 
     def _all_schemas(self) -> Set[str]:
-        pass
+        """Fetch all schemas on init.
+
+        If the database already exists then we
+        need a `Set` of all schema names that exist.
+        This requires de-duping the `<schema_name>_nodes`
+        and `<schema_name>_edges`. We then split the
+        prefix out of the table name.
+        """
+        schema_rows = self.database.get_schemas()
+        schema_list = [schema["name"] for schema in schema_rows]
+        schema_list.sort()
+        return set(
+            [schema_name.split("_")[0] for schema_name in schema_list]
+        )
 
     def _all_schema_nodes(self) -> Dict[str, Node]:
-        pass
+        """Fetch all nodes for all schemas.
+
+        Gets all nodes from every schema that we have.
+
+        Params:
+            None
+
+        Returns:
+            nodes (Dict[str, Node]): Dict of node IDs and node objects
+                or an empty dictionary.
+        """
+        nodes = {}
+        for schema_name in self.schemas:
+            node_rows = self.database.get_all_nodes(schema_name=schema_name)
+            for node_row in node_rows:
+                node = self._create_node(schema_name=schema_name, node_row=node_row)
+                nodes[node.id] = node
+        return nodes
 
     def _all_schema_edges(self) -> List[Edge]:
-        pass
+        """Fetch all edges for all schemas.
+
+        Gets all edges from every schema that we have.
+
+        Params:
+            None
+
+        Returns:
+            edges (List[Edge]): List of edge objects or an empty list.
+        """
+        edges = []
+        for schema_name in self.schemas:
+            edge_rows = self.database.get_all_edges(schema_name=schema_name)
+            for edge_row in edge_rows:
+                edge = self._create_edge(schema_name=schema_name, edge_row=edge_row)
+                edges.append(edge)
+        return edges
 
     def add_schema(self, schema_name: str) -> None:
         """Adds a schema.
@@ -41,6 +87,7 @@ class Graph:
             None
         """
         self.database.add_schema(schema_name=schema_name)
+        self.schemas.add(schema_name)
 
     def add_node(self, schema_name: str, node: Node) -> None:
         """Adds a node.
