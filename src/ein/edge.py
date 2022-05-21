@@ -17,10 +17,15 @@ class Edge:
         self.target = target
         self.properties = properties
 
-    def __eq__(self, source: Node, target: Node) -> bool:
-        return (
-            self.source.id == source.id
-            and
-            self.target.id == target.id
-        )
+    def __eq__(self, source: Optional[Node] = None, target: Optional[Node] = None) -> bool:
+
+        if source and target:
+            return (
+                self.source.id == source.id
+                and
+                self.target.id == target.id
+            )
+        else:
+            super().__eq__(self)
+
 

@@ -3,4 +3,5 @@ WHERE
     source = ?
     OR
     target = ?
+;
 

@@ -7,4 +7,5 @@ VALUES (
     ?,
     json(?)
 )
+;
 

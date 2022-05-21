@@ -9,4 +9,5 @@ VALUES (
     ?,
     json(?)
 )
+;
 
