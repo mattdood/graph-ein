@@ -8,14 +8,7 @@ ALLOWED_OPERATORS = {"and", "not", "or"}
 
 class IncompleteStatementError(Exception):
     """An incomplete SQL statement was used."""
-
-    def __init__(self) -> None:
-        self.message = """An incomplete SQL statement was used.
-
-        Statements must have termination with semicolons `;`
-        and require closed string literals.
-        """
-        super().__init__(self.message)
+    pass
 
 
 class DisallowedOperatorError(Exception):
@@ -205,11 +198,7 @@ class Database:
         self._connection.commit()
 
     def delete_nodes(self, schema_name: str, node_ids: List[str]) -> None:
-        """ This bulk deletes 'nodes' in one transaction.
-
-        TODO:
-            * Implement and test
-        """
+        """This bulk deletes 'nodes' in one transaction."""
         sql_text = self._read_sql_file("delete-nodes.sql", schema_name)
         node_list = (", ").join(f"'{node}'" for node in node_ids)
         nodes = f"({node_list})"
@@ -278,6 +267,11 @@ class Database:
         sql_text = self._read_sql_file("select-node.sql", schema_name)
         return self._cursor.execute(sql_text, (node_id,)).fetchone()
 
+    def get_all_nodes(self, schema_name: str) -> List[Union[Tuple, sqlite3.Row]]:
+        """Retrieve all nodes from a schema name."""
+        sql_text = self._read_sql_file("select-all-nodes.sql", schema_name)
+        return self._cursor.execute(sql_text).fetchall()
+
     def get_nodes(self,
                   schema_name: str,
                   node_id: Optional[str] = None,
@@ -330,6 +324,7 @@ class Database:
 
         sql_params = f" {operator} ".join(sql_params)
         sql_text = sql_text.replace("{{params}}", sql_params)
+
         return self._cursor.execute(sql_text).fetchall()
 
     def get_edge(self,
@@ -353,6 +348,11 @@ class Database:
         sql_text = self._read_sql_file("select-edge.sql", schema_name)
         edge = self._cursor.execute(sql_text, (source_id, target_id,)).fetchone()
         return edge
+
+    def get_all_edges(self, schema_name: str) -> List[Union[Tuple, sqlite3.Row]]:
+        """Retrieve all edges from a schema name."""
+        sql_text = self._read_sql_file("select-all-edges.sql", schema_name)
+        return self._cursor.execute(sql_text).fetchall()
 
     def get_edges(self,
                   schema_name: str,
