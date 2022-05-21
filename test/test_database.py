@@ -31,27 +31,18 @@ def test_database_executes_arbitrary_sql(db_setup):
 def test_database_reads_sql_file(db_setup):
     """`Database` objects can read SQL files and insert schemas."""
 
-    sql_text = db_setup._read_sql_file("create-schema.sql", TEST_SCHEMA)
+    sql_text = db_setup._read_sql_file("insert-node.sql", TEST_SCHEMA)
 
-    expected_sql_text = """
-    CREATE TABLE IF NOT EXISTS test_nodes (
-        id TEXT NOT NULL PRIMARY KEY,
-        body JSON
-    );
-
-    CREATE INDEX IF NOT EXISTS idx_id ON test_nodes(id);
-
-    CREATE TABLE IF NOT EXISTS test_edges (
-        source TEXT,
-        target TEXT,
-        properties TEXT,
-        UNIQUE(source, target, properties) ON CONFLICT REPLACE,
-        FOREIGN KEY(source) REFERENCES nodes(id),
-        FOREIGN KEY(target) REFERENCES nodes(id)
-    );
-
-    CREATE INDEX IF NOT EXISTS idx_source ON test_edges(source);
-    CREATE INDEX IF NOT EXISTS idx_target ON test_edges(target);
+    expected_sql_text = f"""
+    INSERT INTO {TEST_SCHEMA}_nodes
+    (
+        id,
+        body
+    )
+    VALUES (
+        ?,
+        json(?)
+    )
     """
 
     # sanitize both strings to compare
@@ -93,7 +84,7 @@ def test_database_add_schema(db_setup):
     schema_indexes = db_setup.execute_sql(check_schema_indexes_sql)
 
     expected_schema_tables = [("test_nodes",), ("test_edges",)]
-    expected_indexes = [("sqlite_autoindex_test_nodes_1",), ("idx_id",), ("sqlite_autoindex_test_edges_1",), ("idx_source",), ("idx_target",)]
+    expected_indexes = [("sqlite_autoindex_test_nodes_1",), ("idx_id",), ("sqlite_autoindex_test_edges_1",), ("idx_source_target",)]
 
     assert schema_tables == expected_schema_tables
     assert schema_indexes == expected_indexes

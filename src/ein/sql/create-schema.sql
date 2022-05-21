@@ -16,5 +16,5 @@ CREATE TABLE IF NOT EXISTS {{schema_name}}_edges (
     FOREIGN KEY(target) REFERENCES nodes(id) ON DELETE CASCADE
 );
 
-CREATE UNIQUE INDEX IF NOT EXISTS idx_source ON {{schema_name}}_edges(source, target);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_source_target ON {{schema_name}}_edges(source, target);
 
