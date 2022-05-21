@@ -2,7 +2,7 @@ import json
 import pytest
 import sqlite3
 
-from conftest import TEST_DB, TEST_SCHEMA, db_setup
+from conftest import TEST_DB, TEST_SCHEMA
 from src.ein.database import Database, DisallowedOperatorError, IncompleteStatementError
 
 
@@ -115,7 +115,7 @@ def test_database_add_node(db_setup):
         }
     }
 
-    db_setup.add_node(TEST_SCHEMA, node)
+    db_setup.add_node(TEST_SCHEMA, node["id"], node)
 
     check_node_sql = """
     SELECT * FROM {schema_name}_nodes;
@@ -152,7 +152,7 @@ def test_database_update_node(db_setup):
         ]
     }
 
-    db_setup.add_node(TEST_SCHEMA, node_one)
+    db_setup.add_node(TEST_SCHEMA, node_one["id"], node_one)
 
     db_setup.update_node(TEST_SCHEMA, node_one["id"], updated_body)
 
@@ -193,8 +193,8 @@ def test_database_add_edge(db_setup):
         }
     }
 
-    db_setup.add_node(TEST_SCHEMA, node_one)
-    db_setup.add_node(TEST_SCHEMA, node_two)
+    db_setup.add_node(TEST_SCHEMA, node_one["id"], node_one)
+    db_setup.add_node(TEST_SCHEMA, node_two["id"], node_two)
 
     db_setup.add_edge(TEST_SCHEMA, node_one["id"], node_two["id"])
 
@@ -207,6 +207,10 @@ def test_database_add_edge(db_setup):
     expected_edges_data = [(node_one["id"], node_two["id"], 'null')]
 
     assert edges_data == expected_edges_data
+
+    # Test unique index on FK constraints
+    with pytest.raises(Exception) as e:
+        db_setup.add_edge(TEST_SCHEMA, node_one["id"], node_two["id"])
 
 
 def test_database_update_edge(db_setup):
@@ -239,8 +243,8 @@ def test_database_update_edge(db_setup):
         "find-me": "something"
     }
 
-    db_setup.add_node(TEST_SCHEMA, node_one)
-    db_setup.add_node(TEST_SCHEMA, node_two)
+    db_setup.add_node(TEST_SCHEMA, node_one["id"], node_one)
+    db_setup.add_node(TEST_SCHEMA, node_two["id"], node_two)
 
     db_setup.add_edge(TEST_SCHEMA, node_one["id"], node_two["id"])
 
@@ -292,7 +296,7 @@ def test_database_get_node(db_setup):
         "body": "selected-body"
     }
 
-    db_setup.add_node(TEST_SCHEMA, node_one)
+    db_setup.add_node(TEST_SCHEMA, node_one["id"], node_one)
 
     results_body = db_setup.get_node(
         TEST_SCHEMA,
@@ -319,8 +323,8 @@ def test_database_get_nodes(db_setup):
         "body": "selected-body"
     }
 
-    db_setup.add_node(TEST_SCHEMA, node_one)
-    db_setup.add_node(TEST_SCHEMA, node_two)
+    db_setup.add_node(TEST_SCHEMA, node_one["id"], node_one)
+    db_setup.add_node(TEST_SCHEMA, node_two["id"], node_two)
 
     params_body = {
         "body": "selected-body"
@@ -373,8 +377,8 @@ def test_database_get_nodes_errors(db_setup):
         "body": "selected-body"
     }
 
-    db_setup.add_node(TEST_SCHEMA, node_one)
-    db_setup.add_node(TEST_SCHEMA, node_two)
+    db_setup.add_node(TEST_SCHEMA, node_one["id"], node_one)
+    db_setup.add_node(TEST_SCHEMA, node_two["id"], node_two)
 
     params_operator = {
         "body": "selected-body"
@@ -405,8 +409,8 @@ def test_database_get_edge(db_setup):
         "body": "selected-body"
     }
 
-    db_setup.add_node(TEST_SCHEMA, node_one)
-    db_setup.add_node(TEST_SCHEMA, node_two)
+    db_setup.add_node(TEST_SCHEMA, node_one["id"], node_one)
+    db_setup.add_node(TEST_SCHEMA, node_two["id"], node_two)
 
     db_setup.add_edge(TEST_SCHEMA, node_one["id"], node_two["id"])
 
@@ -435,8 +439,8 @@ def test_database_get_edges(db_setup):
         "body": "selected-body"
     }
 
-    db_setup.add_node(TEST_SCHEMA, node_one)
-    db_setup.add_node(TEST_SCHEMA, node_two)
+    db_setup.add_node(TEST_SCHEMA, node_one["id"], node_one)
+    db_setup.add_node(TEST_SCHEMA, node_two["id"], node_two)
 
     db_setup.add_edge(TEST_SCHEMA, node_one["id"], node_two["id"])
 
@@ -474,7 +478,7 @@ def test_database_delete_node(db_setup):
         "body": "selected-body"
     }
 
-    db_setup.add_node(TEST_SCHEMA, node_one)
+    db_setup.add_node(TEST_SCHEMA, node_one["id"], node_one)
 
     db_setup.delete_node(TEST_SCHEMA, node_one["id"])
 
@@ -503,8 +507,8 @@ def test_database_delete_nodes(db_setup):
         "body": "selected-body"
     }
 
-    db_setup.add_node(TEST_SCHEMA, node_one)
-    db_setup.add_node(TEST_SCHEMA, node_two)
+    db_setup.add_node(TEST_SCHEMA, node_one["id"], node_one)
+    db_setup.add_node(TEST_SCHEMA, node_two["id"], node_two)
 
     db_setup.delete_nodes(TEST_SCHEMA, [node_one["id"], node_two["id"]])
 
@@ -543,8 +547,8 @@ def test_database_delete_edge(db_setup):
         "body": "selected-body"
     }
 
-    db_setup.add_node(TEST_SCHEMA, node_one)
-    db_setup.add_node(TEST_SCHEMA, node_two)
+    db_setup.add_node(TEST_SCHEMA, node_one["id"], node_one)
+    db_setup.add_node(TEST_SCHEMA, node_two["id"], node_two)
 
     db_setup.add_edge(TEST_SCHEMA, node_one["id"], node_two["id"])
 
@@ -574,8 +578,8 @@ def test_database_delete_edges(db_setup):
         "body": "selected-body"
     }
 
-    db_setup.add_node(TEST_SCHEMA, node_one)
-    db_setup.add_node(TEST_SCHEMA, node_two)
+    db_setup.add_node(TEST_SCHEMA, node_one["id"], node_one)
+    db_setup.add_node(TEST_SCHEMA, node_two["id"], node_two)
 
     db_setup.add_edge(TEST_SCHEMA, node_one["id"], node_two["id"])
 

@@ -90,18 +90,19 @@ class Database:
         self._cursor.executescript(sql_text)
         self._connection.commit()
 
-    def add_node(self, schema_name: str, json_data: Dict) -> None:
+    def add_node(self, schema_name: str, node_id: str, node_body: Dict) -> None:
         """Adds a 'node' to SQLite db.
 
         Params:
             schema_name (str): Name to prepend to tables.
-            json_data (Dict): The data representing a node.
+            node_id (str): ID of a node.
+            node_body (Dict): The data representing a node.
 
         Returns:
             None
         """
         sql_text = self._read_sql_file("insert-node.sql", schema_name)
-        self._cursor.execute(sql_text, (json_data["id"], json.dumps(json_data)))
+        self._cursor.execute(sql_text, (node_id, json.dumps(node_body)))
         self._connection.commit()
 
     def add_edge(self,

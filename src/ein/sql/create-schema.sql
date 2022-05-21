@@ -1,6 +1,3 @@
--- enable foreign key enforcement
-PRAGMA foreign_keys = ON;
-
 -- create nodes table with index
 CREATE TABLE IF NOT EXISTS {{schema_name}}_nodes (
     id TEXT NOT NULL PRIMARY KEY,
@@ -19,6 +16,5 @@ CREATE TABLE IF NOT EXISTS {{schema_name}}_edges (
     FOREIGN KEY(target) REFERENCES nodes(id) ON DELETE CASCADE
 );
 
-CREATE INDEX IF NOT EXISTS idx_source ON {{schema_name}}_edges(source);
-CREATE INDEX IF NOT EXISTS idx_target ON {{schema_name}}_edges(target);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_source ON {{schema_name}}_edges(source, target);
 
