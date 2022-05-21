@@ -299,6 +299,24 @@ def test_database_get_node(db_setup):
     assert len(results_body) == 2
 
 
+def test_database_get_all_nodes(db_setup):
+    """Selects all nodes in a schema."""
+
+    db_setup.add_schema(TEST_SCHEMA)
+
+    node_one = {
+        "id": "select-all-nodes-test",
+        "body": "selected-body"
+    }
+
+    db_setup.add_node(TEST_SCHEMA, node_one["id"], node_one)
+
+    results_body = db_setup.get_all_nodes(TEST_SCHEMA)
+
+    assert "select-all-nodes-test" in str(results_body)
+    # tuple of 2 columns
+    assert len(results_body) == 1
+
 def test_database_get_nodes(db_setup):
     """Selects nodes based on params."""
 
@@ -414,6 +432,31 @@ def test_database_get_edge(db_setup):
 
     assert selected_edge == expected_edge
 
+
+def test_database_get_all_edges(db_setup):
+    """Queries for all edges."""
+
+    db_setup.add_schema(TEST_SCHEMA)
+
+    node_one = {
+        "id": "select-all-edges-test",
+        "body": "selected-body"
+    }
+
+    node_two = {
+        "id": "select-all-edges-test-2",
+        "body": "selected-body"
+    }
+
+    db_setup.add_node(TEST_SCHEMA, node_one["id"], node_one)
+    db_setup.add_node(TEST_SCHEMA, node_two["id"], node_two)
+
+    db_setup.add_edge(TEST_SCHEMA, node_one["id"], node_two["id"])
+
+    selected_edges = db_setup.get_all_edges(TEST_SCHEMA)
+    expected_edges = [(node_one["id"], node_two["id"], 'null')]
+
+    assert selected_edges == expected_edges
 
 def test_database_get_edges(db_setup):
     """Queries for edges."""
