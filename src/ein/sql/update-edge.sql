@@ -3,6 +3,6 @@ SET properties = json(?)
 WHERE
     source = ?
     AND
-    target = ?;
+    target = ?
 ;
 
