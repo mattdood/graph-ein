@@ -1,9 +1,11 @@
 import json
-import pytest
 import sqlite3
 
+import pytest
+
 from conftest import TEST_DB, TEST_SCHEMA
-from src.ein.database import Database, DisallowedOperatorError, IncompleteStatementError
+from src.ein.database import (Database, DisallowedOperatorError,
+                              IncompleteStatementError)
 
 
 def test_database_init(db_setup):
@@ -209,7 +211,7 @@ def test_database_add_edge(db_setup):
     assert edges_data == expected_edges_data
 
     # Test unique index on FK constraints
-    with pytest.raises(Exception) as e:
+    with pytest.raises(Exception) as e:  # noqa F841
         db_setup.add_edge(TEST_SCHEMA, node_one["id"], node_two["id"])
 
 
@@ -391,6 +393,7 @@ def test_database_get_all_nodes(db_setup):
     # tuple of 2 columns
     assert len(results_body) == 1
 
+
 def test_database_get_nodes(db_setup):
     """Selects nodes based on params."""
 
@@ -431,7 +434,6 @@ def test_database_get_nodes(db_setup):
     assert "select-nodes-test-2" in str(results_id_body)
     assert len(results_id_body) == 2
 
-
     params_operator = {
         "body": "selected-body"
     }
@@ -467,7 +469,7 @@ def test_database_get_nodes_errors(db_setup):
         "body": "selected-body"
     }
 
-    with pytest.raises(DisallowedOperatorError) as e_info:
+    with pytest.raises(DisallowedOperatorError) as e:  # noqa F841
 
         db_setup.get_nodes(
             TEST_SCHEMA,
@@ -539,6 +541,7 @@ def test_database_get_all_edges(db_setup):
     ]
 
     assert selected_edges == expected_edges
+
 
 def test_database_get_edges(db_setup):
     """Queries for edges."""
