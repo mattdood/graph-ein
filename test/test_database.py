@@ -43,6 +43,7 @@ def test_database_reads_sql_file(db_setup):
         ?,
         json(?)
     )
+    ;
     """
 
     # sanitize both strings to compare
@@ -195,13 +196,78 @@ def test_database_add_edge(db_setup):
 
     edges_data = db_setup.execute_sql(check_edge_sql)
 
-    expected_edges_data = [(node_one["id"], node_two["id"], 'null')]
+    expected_edges_data = [
+        (
+            node_one["id"],
+            TEST_SCHEMA,
+            node_two["id"],
+            TEST_SCHEMA,
+            'null'
+        )
+    ]
 
     assert edges_data == expected_edges_data
 
     # Test unique index on FK constraints
     with pytest.raises(Exception) as e:
         db_setup.add_edge(TEST_SCHEMA, node_one["id"], node_two["id"])
+
+
+def test_database_add_multi_schema_edge(db_setup):
+    """Add an edge that has nodes in 2 places."""
+    schema_one = "test1"
+    schema_two = "test2"
+
+    db_setup.add_schema(schema_one)
+    db_setup.add_schema(schema_two)
+
+    node_one = {
+        "id": "add-multi-schema-edge-test",
+        "body": {
+            "other-data": [
+                "string-one",
+                "string-two"
+            ]
+        }
+    }
+    node_two = {
+        "id": "add-multi-schema-edge-test2",
+        "body": {
+            "other-data": [
+                "string-one",
+                "string-two"
+            ]
+        }
+    }
+
+    db_setup.add_node(schema_one, node_one["id"], node_one)
+    db_setup.add_node(schema_two, node_two["id"], node_two)
+
+    db_setup.add_edge(
+        schema_name=schema_one,
+        source_id=node_one["id"],
+        source_schema_name=schema_one,
+        target_id=node_two["id"],
+        target_schema_name=schema_two,
+    )
+
+    check_edge_sql = """
+    SELECT * FROM {schema_name}_edges;
+    """.format(schema_name=schema_one)
+
+    edges_data = db_setup.execute_sql(check_edge_sql)
+
+    expected_edges_data = [
+        (
+            node_one["id"],
+            schema_one,
+            node_two["id"],
+            schema_two,
+            'null'
+        )
+    ]
+
+    assert edges_data == expected_edges_data
 
 
 def test_database_update_edge(db_setup):
@@ -247,7 +313,15 @@ def test_database_update_edge(db_setup):
 
     edges_data = db_setup.execute_sql(check_edge_sql)
 
-    expected_edges_data = [(node_one["id"], node_two["id"], json.dumps(property).replace(" ", ""))]
+    expected_edges_data = [
+        (
+            node_one["id"],
+            TEST_SCHEMA,
+            node_two["id"],
+            TEST_SCHEMA,
+            json.dumps(property).replace(" ", "")
+        )
+    ]
 
     assert edges_data == expected_edges_data
 
@@ -428,7 +502,7 @@ def test_database_get_edge(db_setup):
         node_one["id"],
         node_two["id"]
     )
-    expected_edge = (node_one["id"], node_two["id"], 'null')
+    expected_edge = (node_one["id"], TEST_SCHEMA, node_two["id"], TEST_SCHEMA, 'null')
 
     assert selected_edge == expected_edge
 
@@ -454,7 +528,15 @@ def test_database_get_all_edges(db_setup):
     db_setup.add_edge(TEST_SCHEMA, node_one["id"], node_two["id"])
 
     selected_edges = db_setup.get_all_edges(TEST_SCHEMA)
-    expected_edges = [(node_one["id"], node_two["id"], 'null')]
+    expected_edges = [
+        (
+            node_one["id"],
+            TEST_SCHEMA,
+            node_two["id"],
+            TEST_SCHEMA,
+            'null'
+        )
+    ]
 
     assert selected_edges == expected_edges
 
@@ -483,7 +565,15 @@ def test_database_get_edges(db_setup):
         node_one["id"],
         node_two["id"]
     )
-    expected_edges = [(node_one["id"], node_two["id"], 'null')]
+    expected_edges = [
+        (
+            node_one["id"],
+            TEST_SCHEMA,
+            node_two["id"],
+            TEST_SCHEMA,
+            'null'
+        )
+    ]
 
     assert selected_edges == expected_edges
 
