@@ -41,9 +41,7 @@ class Edge:
 
         if source and target:
             return (
-                self.source.id == source.id
-                and
-                self.target.id == target.id
+                self.source.id == source.id and self.target.id == target.id
             )
         else:
             super().__eq__(self)

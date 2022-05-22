@@ -9,8 +9,21 @@ on:
 
 jobs:
 
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code Repository
+        uses: actions/checkout@v2
+
+      - name: Install Requirements
+        run: pip install -r requirements-dev.txt
+
+      - name: Run Pre-Commit
+        run: pre-commit run --all-files
+
   pytest:
     runs-on: ubuntu-latest
+    needs: lint
     steps:
 
       - name: Checkout Code Repository

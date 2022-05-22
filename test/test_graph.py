@@ -1,5 +1,6 @@
 import json
 import os
+
 import pytest
 
 from conftest import TEST_DB, TEST_SCHEMA
@@ -248,7 +249,7 @@ def test_graph_delete_node(db_setup_row_factory, graph_setup_row_factory):
     assert graph_setup_row_factory.nodes == {}
 
     expected = db_setup_row_factory.get_node(schema_name=node.schema_name, node_id=node.id)
-    assert expected == None
+    assert expected is None
 
 
 def test_graph_delete_edge(db_setup_row_factory, graph_setup_row_factory):
