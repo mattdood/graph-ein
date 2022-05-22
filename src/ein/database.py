@@ -102,20 +102,34 @@ class Database:
                  schema_name: str,
                  source_id: str,
                  target_id: str,
+                 source_schema_name: Optional[str] = None,
+                 target_schema_name: Optional[str] = None,
                  properties: Optional[Dict] = None) -> None:
         """Adds a 'edge' to SQLite db.
 
         Params:
-            schema_name (str): Name to prepend to tables.
+            schema_name (str): Schema name for edge table.
             source_id (str): Origin ID of the edge.
             target_id (str): Direction of the link in the edge.
-            properties (Dict): Properties of the link (e.g., weights)
+            source_schema_name (Optional[str]): Name to prepend to tables,
+                defaults to the `schema_name` if not given. This is for
+                multi-table nodes (separate schemas).
+            target_schema_name (Optional[str]): Name to prepend to tables,
+                defaults to the `schema_name` if not given. This is for
+                multi-table nodes (separate schemas).
+            properties (Optional[Dict]): Properties of the link (e.g., weights)
 
         Returns:
             None
         """
         sql_text = self._read_sql_file("insert-edge.sql", schema_name)
-        self._cursor.execute(sql_text, (source_id, target_id, json.dumps(properties)))
+        self._cursor.execute(sql_text, (
+            source_id,
+            source_schema_name if source_schema_name else schema_name,
+            target_id,
+            target_schema_name if target_schema_name else schema_name,
+            json.dumps(properties)
+        ))
         self._connection.commit()
 
     def update_schema(self, schema_name: str, new_schema_name: str) -> None:
