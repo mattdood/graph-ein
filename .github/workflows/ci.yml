@@ -10,7 +10,7 @@ on:
 jobs:
 
   pytest:
-    runs-on: ubuntu-lastest
+    runs-on: ubuntu-latest
     steps:
 
       - name: Checkout Code Repository
