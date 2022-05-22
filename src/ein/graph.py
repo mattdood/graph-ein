@@ -33,7 +33,6 @@ class Graph:
         """
         schema_rows = self.database.get_schemas()
         schema_list = [schema["name"] for schema in schema_rows]
-        schema_list.sort()
         return set(
             [schema_name.split("_")[0] for schema_name in schema_list]
         )
