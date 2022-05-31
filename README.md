@@ -7,11 +7,22 @@
 # Graph-Ein
 A graph database implemented in [SQLite](https://sqlite.org/index.html).
 
-<img src="https://img.shields.io/github/issues/mattdood/graph-ein" alt="Badge for GitHub issues."/>
-<img src="https://img.shields.io/github/forks/mattdood/graph-ein" alt="Badge for GitHub forks."/>
-<img src="https://img.shields.io/github/stars/mattdood/graph-ein" alt="Badge for GitHub stars."/>
-<img src="https://img.shields.io/github/license/mattdood/graph-ein" alt="Badge for GitHub license, MIT."/>
-<img src="https://img.shields.io/twitter/url?url=https%3A%2F%2Fgithub.com%2Fmattdood%2Fgraph-ein" alt="Badge for sharable Twitter link."/>
+<img src="https://img.shields.io/github/issues/mattdood/graph-ein"
+    target="https://github.com/mattdood/graph-ein/issues"
+    alt="Badge for GitHub issues."/>
+<img src="https://img.shields.io/github/forks/mattdood/graph-ein"
+    target="https://github.com/mattdood/graph-ein/forks"
+    alt="Badge for GitHub forks."/>
+<img src="https://img.shields.io/github/stars/mattdood/graph-ein"
+    alt="Badge for GitHub stars."/>
+<img src="https://img.shields.io/github/license/mattdood/graph-ein"
+    target="https://github.com/mattdood/graph-ein/raw/master/LICENSE"
+    alt="Badge for GitHub license, MIT."/>
+<img src="https://img.shields.io/twitter/url?url=https%3A%2F%2Fgithub.com%2Fmattdood%2Fgraph-ein"
+    target="https://twitter.com/intent/tweet?text=Wow:&url=https%3A%2F%2Fgithub.com%2Fmattdood%2Fgraph-ein"
+    alt="Badge for sharable Twitter link."/>
+[![Pytest](https://github.com/mattdood/graph-ein/actions/workflows/ci.yml/badge.svg)](https://github.com/mattdood/graph-ein/actions/workflows/ci.yml)
+
 
 ## Installation
 To install the project, run the following:
@@ -33,6 +44,7 @@ each of the data objects stored in the file.
 The database can be connected to via [DBeaver](https://dbeaver.io) or some other
 database client if you'd like to explore the data.
 
+#### Schemas
 Databases have a concept of "schemas" that are used to organize disparate nodes
 and edges from each other. As such, a schema is needed for each of the node/edge
 data points added.
