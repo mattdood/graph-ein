@@ -1,4 +1,5 @@
 import json
+import os
 import pathlib
 import sqlite3
 from typing import Dict, List, Optional, Tuple, Union
@@ -58,7 +59,7 @@ class Database:
         Returns:
             sql_text (str): SQL text with the schema added.
         """
-        with open(pathlib.Path.cwd() / "src/ein/sql" / file_name) as file:
+        with open(pathlib.Path(os.path.dirname(__file__)) / "sql" / file_name) as file:
             sql_text = file.read()
 
         if schema_name:

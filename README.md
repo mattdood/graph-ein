@@ -1,5 +1,5 @@
 <div align="center">
-    <img src="/assets/ein-space.gif" alt="Gif of Ein from Cowboy Bebop in space"/>
+    <img src="https://github.com/mattdood/graph-ein/raw/master/assets/ein-space.gif" alt="Gif of Ein from Cowboy Bebop in space"/>
 </div>
 
 # Graph-Ein

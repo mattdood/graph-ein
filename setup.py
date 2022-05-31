@@ -21,9 +21,7 @@ setuptools.setup(
         "Operating System :: OS Independent",
     ],
     package_dir={"": "src"},
-    packages=setuptools.find_packages(
-        where="src",
-        exclude=["tests", "tests.*"],
-    ),
+    packages=setuptools.find_packages(where="src"),
+    package_data={"ein": ["sql/*.sql"],},
     python_requires=">=3.6",
 )
