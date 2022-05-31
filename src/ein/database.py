@@ -126,9 +126,9 @@ class Database:
         sql_text = self._read_sql_file("insert-edge.sql", schema_name)
         self._cursor.execute(sql_text, (
             source_id,
-            source_schema_name,
+            source_schema_name if source_schema_name else schema_name,
             target_id,
-            target_schema_name,
+            target_schema_name if target_schema_name else schema_name,
             json.dumps(properties)
         ))
         self._connection.commit()
