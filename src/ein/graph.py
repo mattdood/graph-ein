@@ -312,8 +312,6 @@ class Graph:
             schema_name=schema_name,
             source=self.get_node(edge_row["source"]),
             target=self.get_node(edge_row["target"]),
-            source_schema_name=edge_row["source_schema"],
-            target_schema_name=edge_row["target_schema"],
             properties=json.loads(edge_row["properties"]),
         )
 
