@@ -13,3 +13,6 @@ class Node:
         self.id = id
         self.body = body
 
+    def __repr__(self) -> str:
+        pass
+

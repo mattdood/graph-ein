@@ -2,9 +2,9 @@ import json
 import sqlite3
 from typing import Dict, List, Set, Union
 
-from src.ein.database import Database
-from src.ein.edge import Edge
-from src.ein.node import Node
+from .database import Database
+from .edge import Edge
+from .node import Node
 
 
 class Graph:

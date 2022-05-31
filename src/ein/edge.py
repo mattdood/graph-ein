@@ -1,6 +1,6 @@
 from typing import Dict, Optional
 
-from src.ein.node import Node
+from .node import Node
 
 
 class Edge:
