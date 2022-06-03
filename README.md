@@ -44,6 +44,9 @@ each of the data objects stored in the file.
 The database can be connected to via [DBeaver](https://dbeaver.io) or some other
 database client if you'd like to explore the data.
 
+**Note:** For users that want to utilize additional SQLite features there are
+methods for executing arbitrary statements/multiple statements.
+
 #### Schemas
 Databases have a concept of "schemas" that are used to organize disparate nodes
 and edges from each other. As such, a schema is needed for each of the node/edge
@@ -76,6 +79,9 @@ The `Graph` instantiates with all current data in the supplied path.
 
 Graphs operate with "schemas" that help to logically separate different sub-graphs.
 These graphs can be connected via `Edge` objects to bridge clusters of nodes.
+
+Any data added/updated/deleted via the `Graph` is also reflected at the database
+level at time of execution.
 
 ```python
 from ein.graph import Graph
