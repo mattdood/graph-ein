@@ -5,7 +5,8 @@
 **Note:** I do not make any claims to the [Cowboy Bebop](https://en.wikipedia.org/wiki/Cowboy_Bebop) assets, names, or trademarks.
 
 # Graph-Ein
-A graph database implemented in [SQLite](https://sqlite.org/index.html).
+A graph database implemented in [SQLite](https://sqlite.org/index.html). This is
+great for creating a standalone, single file graph database.
 
 <img src="https://img.shields.io/github/issues/mattdood/graph-ein"
     target="https://github.com/mattdood/graph-ein/issues"
