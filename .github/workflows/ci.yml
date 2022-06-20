@@ -78,7 +78,7 @@ jobs:
       - name: Publish distribution to Test PyPI
         uses: pypa/gh-action-pypi-publish@master
         # # check if we need to distribute
-        # if: needs.setup-py-changes.outputs.setup_changes == 'true'
+        if: needs.setup-py-changes.outputs.setup_changes == 'true'
         with:
           password: ${{ secrets.TEST_PYPI_API_TOKEN }}
           repository_url: https://test.pypi.org/legacy/
