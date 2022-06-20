@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="ein-graph",
-    version="0.0.9",
+    version="0.0.10",
     author="Matthew Wimberly",
     author_email="matthew.wimb@gmail.com",
     description="A graph database implemented in SQLite.",
