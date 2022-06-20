@@ -4,7 +4,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
 setuptools.setup(
-    name="graph-ein",
+    name="ein-graph",
     version="0.0.9",
     author="Matthew Wimberly",
     author_email="matthew.wimb@gmail.com",

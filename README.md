@@ -29,7 +29,7 @@ great for creating a standalone, single file graph database.
 To install the project, run the following:
 
 ```
-pip install graph-ein
+pip install ein-graph
 ```
 
 ## Usage
