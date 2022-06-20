@@ -67,6 +67,7 @@ jobs:
     name: Build and publish Python distributions to PyPI and TestPyPI
     runs-on: ubuntu-latest
     needs: [pytest, setup-py-changes]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
     steps:
 
       - name: Checkout Code Repository
@@ -82,9 +83,7 @@ jobs:
         uses: pypa/gh-action-pypi-publish@master
         # # check if we need to distribute
         if: |
-          needs.setup-py-changes.outputs.setup_changes == 'true' &&
-          github.event_name == 'pull_request' &&
-          github.ref == 'refs/heads/master'
+          needs.setup-py-changes.outputs.setup_changes == 'true'
         with:
           password: ${{ secrets.TEST_PYPI_API_TOKEN }}
           repository_url: https://test.pypi.org/legacy/
