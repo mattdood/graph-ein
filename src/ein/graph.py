@@ -195,10 +195,10 @@ class Graph:
         self.database.add_edges(
             schema_name=schema_name,
             edges=[(
-                    edge.source.id, edge.source_schema_name,
-                    edge.target.id, edge.target_schema_name,
-                    json.dumps(edge.properties),
-                ) for edge in edges],
+                   edge.source.id, edge.source_schema_name,
+                   edge.target.id, edge.target_schema_name,
+                   json.dumps(edge.properties),
+                   ) for edge in edges],
         )
         self.edges += edges
 

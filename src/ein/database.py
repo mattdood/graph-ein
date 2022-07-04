@@ -153,8 +153,8 @@ class Database:
         self._connection.commit()
 
     def add_edges(self,
-                 schema_name: str,
-                 edges: List[Tuple]) -> None:
+                  schema_name: str,
+                  edges: List[Tuple]) -> None:
         """Adds a 'edge' to SQLite db.
 
         Params:
