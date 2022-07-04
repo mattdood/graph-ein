@@ -100,6 +100,33 @@ def test_graph_add_node(db_setup_row_factory, graph_setup_row_factory):
     assert node.body == json.loads(expected["body"])
 
 
+def test_graph_add_nodes(db_setup_row_factory, graph_setup_row_factory):
+    graph_setup_row_factory.add_schema(TEST_SCHEMA)
+
+    node_one = Node(
+        schema_name=TEST_SCHEMA,
+        id="graph-add-nodes-test1",
+        body={"test": "value"},
+    )
+    node_two = Node(
+        schema_name=TEST_SCHEMA,
+        id="graph-add-nodes-test2",
+        body={"test": "value"},
+    )
+    graph_setup_row_factory.add_nodes(
+        schema_name=TEST_SCHEMA,
+        nodes=[node_one, node_two]
+    )
+
+    expected = db_setup_row_factory.get_all_nodes(schema_name=TEST_SCHEMA)
+
+    assert len(expected) == 2
+    assert node_one.id == expected[0]["id"]
+    assert node_one.body == json.loads(expected[0]["body"])
+    assert node_two.id == expected[1]["id"]
+    assert node_two.body == json.loads(expected[1]["body"])
+
+
 def test_graph_add_edge(db_setup_row_factory, graph_setup_row_factory):
     graph_setup_row_factory.add_schema(TEST_SCHEMA)
 
@@ -126,6 +153,47 @@ def test_graph_add_edge(db_setup_row_factory, graph_setup_row_factory):
     expected = db_setup_row_factory.get_edge(schema_name=TEST_SCHEMA, source_id=edge.source.id, target_id=edge.target.id)
     assert edge.source.id == expected["source"]
     assert edge.target.id == expected["target"]
+
+
+def test_graph_add_edge(db_setup_row_factory, graph_setup_row_factory):
+    graph_setup_row_factory.add_schema(TEST_SCHEMA)
+
+    node_one = Node(
+        schema_name=TEST_SCHEMA,
+        id="graph-add-edges-test",
+        body={"test": "value"},
+    )
+    node_two = Node(
+        schema_name=TEST_SCHEMA,
+        id="graph-add-edges-test2",
+        body={"test": "value"},
+    )
+    node_three = Node(
+        schema_name=TEST_SCHEMA,
+        id="graph-add-edges-test3",
+        body={"test": "value"},
+    )
+    graph_setup_row_factory.add_node(schema_name=node_one.schema_name, node=node_one)
+    graph_setup_row_factory.add_node(schema_name=node_two.schema_name, node=node_two)
+    graph_setup_row_factory.add_node(schema_name=node_three.schema_name, node=node_three)
+
+    edge_one = Edge(
+        schema_name=TEST_SCHEMA,
+        source=node_one,
+        target=node_two,
+    )
+    edge_two = Edge(
+        schema_name=TEST_SCHEMA,
+        source=node_two,
+        target=node_three,
+    )
+    graph_setup_row_factory.add_edges(schema_name=TEST_SCHEMA, edges=[edge_one, edge_two])
+
+    expected = db_setup_row_factory.get_all_edges(schema_name=TEST_SCHEMA)
+    assert edge_one.source.id == expected[0]["source"]
+    assert edge_one.target.id == expected[0]["target"]
+    assert edge_two.source.id == expected[1]["source"]
+    assert edge_two.target.id == expected[1]["target"]
 
 
 def test_graph_add_multi_schema_edge(db_setup_row_factory, graph_setup_row_factory):

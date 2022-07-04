@@ -99,6 +99,25 @@ class Database:
         self._cursor.execute(sql_text, (node_id, json.dumps(node_body)))
         self._connection.commit()
 
+    def add_nodes(self, schema_name: str, nodes: List[Tuple[str, str]]) -> None:
+        """Adds many 'node' objects to SQLite db.
+
+        Takes a list of node data and a schema to generate a
+        large amount of nodes at once.
+
+        Params:
+            schema_name (str): Schema name for all nodes.
+            nodes (List[Tuple[str, Dict]]): All nodes in a list of tuples
+                that have `(node_id, node_body)` format.
+
+        Returns:
+            None
+        """
+        # bulk insert operation
+        sql_text = self._read_sql_file("insert-node.sql", schema_name)
+        self._cursor.executemany(sql_text, nodes)
+        self._connection.commit()
+
     def add_edge(self,
                  schema_name: str,
                  source_id: str,
@@ -131,6 +150,25 @@ class Database:
             target_schema_name if target_schema_name else schema_name,
             json.dumps(properties)
         ))
+        self._connection.commit()
+
+    def add_edges(self,
+                  schema_name: str,
+                  edges: List[Tuple]) -> None:
+        """Adds a 'edge' to SQLite db.
+
+        Params:
+            schema_name (str): Schema name for edge table.
+            edges (List[Tuple]): A list of edges to add to the SQLite database.
+                Requires `source_id`, `source_schema_name`, `target_id`,
+                `target_schema_name`, and `properties` to be present in the
+                tuple.
+
+        Returns:
+            None
+        """
+        sql_text = self._read_sql_file("insert-edge.sql", schema_name)
+        self._cursor.executemany(sql_text, edges)
         self._connection.commit()
 
     def update_schema(self, schema_name: str, new_schema_name: str) -> None:

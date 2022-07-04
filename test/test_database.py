@@ -93,6 +93,60 @@ def test_database_add_schema(db_setup):
     assert schema_indexes == expected_indexes
 
 
+def test_database_add_nodes(db_setup):
+    """Add nodes to a new schema and retrieve it."""
+
+    db_setup.add_schema(TEST_SCHEMA)
+
+    node_one = {
+        "id": "add-nodes-test1",
+        "body": {
+            "id": "add-nodes-test1",
+            "other-data": [
+                "string-one",
+                "string-two"
+            ]
+        }
+    }
+    node_two = {
+        "id": "add-nodes-test2",
+        "body": {
+            "id": "add-nodes-test2",
+            "other-data": [
+                "string-one",
+                "string-two"
+            ]
+        }
+    }
+
+    db_setup.add_nodes(
+        TEST_SCHEMA,
+        [
+            (node_one["id"], json.dumps(node_one["body"])),
+            (node_two["id"], json.dumps(node_two["body"])),
+        ],
+    )
+
+    check_node_sql = """
+    SELECT * FROM {schema_name}_nodes;
+    """.format(schema_name=TEST_SCHEMA)
+
+    nodes_data = db_setup.execute_sql(check_node_sql)
+
+    expected_nodes_data = [
+        (
+            node_one["id"],
+            json.dumps(node_one["body"]).replace(" ", ""),
+        ),
+        (
+            node_two["id"],
+            json.dumps(node_two["body"]).replace(" ", ""),
+        ),
+    ]
+
+    assert nodes_data == expected_nodes_data
+
+
 def test_database_add_node(db_setup):
     """Add a node to a new schema and retrieve it."""
 
@@ -205,6 +259,84 @@ def test_database_add_edge(db_setup):
             node_two["id"],
             TEST_SCHEMA,
             'null'
+        )
+    ]
+
+    assert edges_data == expected_edges_data
+
+    # Test unique index on FK constraints
+    with pytest.raises(Exception) as e:  # noqa F841
+        db_setup.add_edge(TEST_SCHEMA, node_one["id"], node_two["id"])
+
+
+def test_database_add_edges(db_setup):
+    """Add edges to a new schema and retrieve it."""
+
+    db_setup.add_schema(TEST_SCHEMA)
+
+    node_one = {
+        "id": "add-edges-test",
+        "body": {
+            "id": "add-edges-test",
+            "other-data": [
+                "string-one",
+                "string-two"
+            ]
+        }
+    }
+    node_two = {
+        "id": "add-edges-test2",
+        "body": {
+            "id": "add-edges-test2",
+            "other-data": [
+                "string-one",
+                "string-two"
+            ]
+        }
+    }
+    node_three = {
+        "id": "add-edges-test3",
+        "body": {
+            "id": "add-edges-test3",
+            "other-data": [
+                "string-one",
+                "string-two"
+            ]
+        }
+    }
+
+    db_setup.add_node(TEST_SCHEMA, node_one["id"], node_one)
+    db_setup.add_node(TEST_SCHEMA, node_two["id"], node_two)
+    db_setup.add_node(TEST_SCHEMA, node_three["id"], node_three)
+
+    db_setup.add_edges(
+        TEST_SCHEMA,
+        [
+            (node_one["id"], TEST_SCHEMA, node_two["id"], TEST_SCHEMA, json.dumps({})),
+            (node_two["id"], TEST_SCHEMA, node_three["id"], TEST_SCHEMA, json.dumps({})),
+        ],
+    )
+
+    check_edge_sql = """
+    SELECT * FROM {schema_name}_edges;
+    """.format(schema_name=TEST_SCHEMA)
+
+    edges_data = db_setup.execute_sql(check_edge_sql)
+
+    expected_edges_data = [
+        (
+            node_one["id"],
+            TEST_SCHEMA,
+            node_two["id"],
+            TEST_SCHEMA,
+            '{}'
+        ),
+        (
+            node_two["id"],
+            TEST_SCHEMA,
+            node_three["id"],
+            TEST_SCHEMA,
+            '{}'
         )
     ]
 
