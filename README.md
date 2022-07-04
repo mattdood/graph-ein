@@ -23,7 +23,7 @@ great for creating a standalone, single file graph database.
     target="https://twitter.com/intent/tweet?text=Wow:&url=https%3A%2F%2Fgithub.com%2Fmattdood%2Fgraph-ein"
     alt="Badge for sharable Twitter link."/>
 [![Pytest](https://github.com/mattdood/graph-ein/actions/workflows/ci.yml/badge.svg)](https://github.com/mattdood/graph-ein/actions/workflows/ci.yml)
-
+[![PyPI version](https://badge.fury.io/py/ein-graph.svg)](https://badge.fury.io/py/ein-graph)
 
 ## Installation
 To install the project, run the following:
@@ -152,5 +152,31 @@ edge = Edge(
 
 print(edge.source_schema_name) # some_schema
 print(edge.target_schema_name) # some_other_schema
+```
+
+## Releasing builds
+To release builds for the project we use a combination of tagging and changes to
+`setup.py`.
+
+For any releases to `test.pypi.org` use a change to the `version="..."` inside of
+`setup.py`. Once a PR is merged into the main project the test release will be updated.
+
+Any prod releases to `pypi.org` require a tagged version number. This should be done locally
+by running the following:
+
+```bash
+git checkout master
+git pull master
+git tag v<version-number-here>
+git push origin v<version-number-here>
+```
+
+### Rollbacks of versions
+To roll a version back we need to delete the tagged release from the prod PyPI,
+then delete the GitHub tag.
+
+```
+git tag -d v<version-number-here>
+git push origin :v<version-number-here>
 ```
 
