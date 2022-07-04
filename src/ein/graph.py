@@ -110,6 +110,32 @@ class Graph:
             node_row=new_node,
         )
 
+    def add_nodes(self, schema_name: str, nodes: List[Node]) -> None:
+        """Adds many nodes.
+
+        Inserts many nodes to the database, does not support multiple
+        schemas in one bulk insert.
+
+        TODO:
+            * Change nodes addition to do a
+                `SELECT ... FROM ... WHERE node_id IN (...)`
+                Because I still like the idea of only ever having the true DB representation
+                of data in the Graph obj.
+
+        Params:
+            schema_name (str): Schema name for the DB.
+            nodes (List[Node]): Nodes to add to the database.
+
+        Returns:
+            None
+        """
+        self.database.add_nodes(
+            schema_name=schema_name,
+            nodes=[(node.id, json.dumps(node.body)) for node in nodes],
+        )
+        for node in nodes:
+            self.nodes[node.id] = node
+
     def add_edge(self, edge: Edge) -> None:
         """Adds an edge.
 
@@ -140,6 +166,41 @@ class Graph:
                 edge_row=edge_data,
             )
         )
+
+    def add_edges(self, schema_name: str, edges: List[Edge]) -> None:
+        """Adds many edges.
+
+        Add many edges to one schema. This is limited to the single
+        source schema of the edges, all source schemas
+        should match. JSON data for properties is dumped as string
+        here because we're passing a tuple into the database function.
+
+        We don't pull freshly added edges from the DB for the
+        updated `self.edges` list like we do on single adds/updates/etc.
+        It would be more cumbersome to select, so just avoided doing it.
+
+        TODO:
+            * Change edges addition to do a
+                `SELECT ... FROM ... WHERE source_id IN (...) OR target_id IN (...)`
+                Because I still like the idea of only ever having the true DB representation
+                of data in the Graph obj.
+
+        Params:
+            schema_name (str): Schema name for the DB table.
+            edges (List[Edge]): List of edges to add.
+
+        Returns:
+            None
+        """
+        self.database.add_edges(
+            schema_name=schema_name,
+            edges=[(
+                    edge.source.id, edge.source_schema_name,
+                    edge.target.id, edge.target_schema_name,
+                    json.dumps(edge.properties),
+                ) for edge in edges],
+        )
+        self.edges += edges
 
     def update_node(self, node: Node) -> None:
         """Updates a node in the DB and graph.
