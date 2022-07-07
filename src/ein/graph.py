@@ -17,6 +17,7 @@ class Graph:
             db_path (str): Path to a new SQLite database
                 or existing database.
         """
+        self.db_path = db_path
         self.database = Database(db_path=db_path, row_factory=True)
         self.schemas = self._all_schemas()
         self.nodes = self._all_schema_nodes()
