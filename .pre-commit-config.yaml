@@ -15,7 +15,7 @@ repos:
       - id: isort
 
   - repo: https://github.com/PyCQA/flake8
-    rev: 4.0.1
+    rev: 5.0.2
     hooks:
       - id: flake8
         args: ['--config=setup.cfg', '--ignore=F401,F811,W391,E231,F405,E226,E501']
