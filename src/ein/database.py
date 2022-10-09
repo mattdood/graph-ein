@@ -33,6 +33,7 @@ class Database:
         Returns:
             None
         """
+        self.db_path = db_path
         self._connection = sqlite3.connect(db_path)
 
         # Returns items as a sqlite3.Row
